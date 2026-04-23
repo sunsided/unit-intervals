@@ -1,7 +1,7 @@
 use std::{
     error::Error,
     fmt,
-    ops::{Add, Deref, Div, Mul, Sub},
+    ops::{Add, Deref, Div, Mul, Neg, Rem, Sub},
 };
 
 /// A floating-point value constrained to the closed unit interval `[0, 1]`.
@@ -523,6 +523,362 @@ macro_rules! impl_unit_interval_float {
                 Self::new(value).ok_or(UnitIntervalError)
             }
         }
+
+        impl PartialEq<$float> for UnitInterval<$float> {
+            fn eq(&self, other: &$float) -> bool {
+                self.0 == *other
+            }
+        }
+
+        impl PartialEq<UnitInterval<$float>> for $float {
+            fn eq(&self, other: &UnitInterval<$float>) -> bool {
+                *self == other.0
+            }
+        }
+
+        impl PartialOrd<$float> for UnitInterval<$float> {
+            fn partial_cmp(&self, other: &$float) -> Option<std::cmp::Ordering> {
+                self.0.partial_cmp(other)
+            }
+        }
+
+        impl PartialOrd<UnitInterval<$float>> for $float {
+            fn partial_cmp(&self, other: &UnitInterval<$float>) -> Option<std::cmp::Ordering> {
+                self.partial_cmp(&other.0)
+            }
+        }
+
+        impl Add for UnitInterval<$float> {
+            type Output = $float;
+
+            fn add(self, rhs: Self) -> Self::Output {
+                self.0 + rhs.0
+            }
+        }
+
+        impl Add<$float> for UnitInterval<$float> {
+            type Output = $float;
+
+            fn add(self, rhs: $float) -> Self::Output {
+                self.0 + rhs
+            }
+        }
+
+        impl Add<UnitInterval<$float>> for $float {
+            type Output = $float;
+
+            fn add(self, rhs: UnitInterval<$float>) -> Self::Output {
+                self + rhs.0
+            }
+        }
+
+        impl Sub for UnitInterval<$float> {
+            type Output = $float;
+
+            fn sub(self, rhs: Self) -> Self::Output {
+                self.0 - rhs.0
+            }
+        }
+
+        impl Sub<$float> for UnitInterval<$float> {
+            type Output = $float;
+
+            fn sub(self, rhs: $float) -> Self::Output {
+                self.0 - rhs
+            }
+        }
+
+        impl Sub<UnitInterval<$float>> for $float {
+            type Output = $float;
+
+            fn sub(self, rhs: UnitInterval<$float>) -> Self::Output {
+                self - rhs.0
+            }
+        }
+
+        impl Mul<$float> for UnitInterval<$float> {
+            type Output = $float;
+
+            fn mul(self, rhs: $float) -> Self::Output {
+                self.0 * rhs
+            }
+        }
+
+        impl Mul<UnitInterval<$float>> for $float {
+            type Output = $float;
+
+            fn mul(self, rhs: UnitInterval<$float>) -> Self::Output {
+                self * rhs.0
+            }
+        }
+
+        impl Div for UnitInterval<$float> {
+            type Output = $float;
+
+            fn div(self, rhs: Self) -> Self::Output {
+                self.0 / rhs.0
+            }
+        }
+
+        impl Div<$float> for UnitInterval<$float> {
+            type Output = $float;
+
+            fn div(self, rhs: $float) -> Self::Output {
+                self.0 / rhs
+            }
+        }
+
+        impl Div<UnitInterval<$float>> for $float {
+            type Output = $float;
+
+            fn div(self, rhs: UnitInterval<$float>) -> Self::Output {
+                self / rhs.0
+            }
+        }
+
+        impl Rem for UnitInterval<$float> {
+            type Output = $float;
+
+            fn rem(self, rhs: Self) -> Self::Output {
+                self.0 % rhs.0
+            }
+        }
+
+        impl Rem<$float> for UnitInterval<$float> {
+            type Output = $float;
+
+            fn rem(self, rhs: $float) -> Self::Output {
+                self.0 % rhs
+            }
+        }
+
+        impl Rem<UnitInterval<$float>> for $float {
+            type Output = $float;
+
+            fn rem(self, rhs: UnitInterval<$float>) -> Self::Output {
+                self % rhs.0
+            }
+        }
+
+        impl Neg for UnitInterval<$float> {
+            type Output = $float;
+
+            fn neg(self) -> Self::Output {
+                -self.0
+            }
+        }
+
+        impl UnitInterval<$float> {
+            /// Returns the largest integer less than or equal to this value.
+            pub fn floor(self) -> Self {
+                Self(self.0.floor())
+            }
+
+            /// Returns the smallest integer greater than or equal to this value.
+            pub fn ceil(self) -> Self {
+                Self(self.0.ceil())
+            }
+
+            /// Returns the nearest integer to this value, rounding halfway cases away from zero.
+            pub fn round(self) -> Self {
+                Self(self.0.round())
+            }
+
+            /// Returns the integer part of this value.
+            pub fn trunc(self) -> Self {
+                Self(self.0.trunc())
+            }
+
+            /// Returns the fractional part of this value.
+            pub fn fract(self) -> Self {
+                Self(self.0.fract())
+            }
+
+            /// Returns the absolute value.
+            pub fn abs(self) -> Self {
+                Self(self.0.abs())
+            }
+
+            /// Returns a number representing the sign of this value.
+            pub fn signum(self) -> $float {
+                self.0.signum()
+            }
+
+            /// Returns this value with the sign of `sign`.
+            pub fn copysign(self, sign: $float) -> $float {
+                self.0.copysign(sign)
+            }
+
+            /// Returns `true` if this value is positive zero.
+            pub fn is_sign_positive(self) -> bool {
+                self.0.is_sign_positive()
+            }
+
+            /// Returns `true` if this value is negative zero.
+            pub fn is_sign_negative(self) -> bool {
+                self.0.is_sign_negative()
+            }
+
+            /// Returns `true`; unit interval values are always finite.
+            pub fn is_finite(self) -> bool {
+                self.0.is_finite()
+            }
+
+            /// Returns `false`; unit interval values cannot be infinite.
+            pub fn is_infinite(self) -> bool {
+                self.0.is_infinite()
+            }
+
+            /// Returns `false`; unit interval values cannot be `NaN`.
+            pub fn is_nan(self) -> bool {
+                self.0.is_nan()
+            }
+
+            /// Takes the reciprocal, `1 / self`.
+            pub fn recip(self) -> $float {
+                self.0.recip()
+            }
+
+            /// Raises this value to an integer power.
+            pub fn powi(self, n: i32) -> $float {
+                self.0.powi(n)
+            }
+
+            /// Raises this value to a floating-point power.
+            pub fn powf(self, n: $float) -> $float {
+                self.0.powf(n)
+            }
+
+            /// Returns the square root.
+            pub fn sqrt(self) -> Self {
+                Self(self.0.sqrt())
+            }
+
+            /// Returns the cube root.
+            pub fn cbrt(self) -> Self {
+                Self(self.0.cbrt())
+            }
+
+            /// Computes `self * a + b` with one rounding error.
+            pub fn mul_add(self, a: $float, b: $float) -> $float {
+                self.0.mul_add(a, b)
+            }
+
+            /// Returns the Euclidean division of this value by `rhs`.
+            pub fn div_euclid(self, rhs: $float) -> $float {
+                self.0.div_euclid(rhs)
+            }
+
+            /// Returns the least non-negative remainder of this value divided by `rhs`.
+            pub fn rem_euclid(self, rhs: $float) -> $float {
+                self.0.rem_euclid(rhs)
+            }
+
+            /// Returns `e^(self)`.
+            pub fn exp(self) -> $float {
+                self.0.exp()
+            }
+
+            /// Returns `2^(self)`.
+            pub fn exp2(self) -> $float {
+                self.0.exp2()
+            }
+
+            /// Returns the natural logarithm.
+            pub fn ln(self) -> $float {
+                self.0.ln()
+            }
+
+            /// Returns the logarithm with respect to an arbitrary base.
+            pub fn log(self, base: $float) -> $float {
+                self.0.log(base)
+            }
+
+            /// Returns the base 2 logarithm.
+            pub fn log2(self) -> $float {
+                self.0.log2()
+            }
+
+            /// Returns the base 10 logarithm.
+            pub fn log10(self) -> $float {
+                self.0.log10()
+            }
+
+            /// Returns the sine, in radians.
+            pub fn sin(self) -> $float {
+                self.0.sin()
+            }
+
+            /// Returns the cosine, in radians.
+            pub fn cos(self) -> $float {
+                self.0.cos()
+            }
+
+            /// Returns the tangent, in radians.
+            pub fn tan(self) -> $float {
+                self.0.tan()
+            }
+
+            /// Returns both sine and cosine, in radians.
+            pub fn sin_cos(self) -> ($float, $float) {
+                self.0.sin_cos()
+            }
+
+            /// Returns the arcsine, in radians.
+            pub fn asin(self) -> $float {
+                self.0.asin()
+            }
+
+            /// Returns the arccosine, in radians.
+            pub fn acos(self) -> $float {
+                self.0.acos()
+            }
+
+            /// Returns the arctangent, in radians.
+            pub fn atan(self) -> Self {
+                Self(self.0.atan())
+            }
+
+            /// Returns the four-quadrant arctangent of `self` and `other`, in radians.
+            pub fn atan2(self, other: $float) -> $float {
+                self.0.atan2(other)
+            }
+
+            /// Returns the hyperbolic sine.
+            pub fn sinh(self) -> $float {
+                self.0.sinh()
+            }
+
+            /// Returns the hyperbolic cosine.
+            pub fn cosh(self) -> $float {
+                self.0.cosh()
+            }
+
+            /// Returns the hyperbolic tangent.
+            pub fn tanh(self) -> Self {
+                Self(self.0.tanh())
+            }
+
+            /// Returns the inverse hyperbolic sine.
+            pub fn asinh(self) -> Self {
+                Self(self.0.asinh())
+            }
+
+            /// Returns the inverse hyperbolic cosine.
+            pub fn acosh(self) -> $float {
+                self.0.acosh()
+            }
+
+            /// Returns the inverse hyperbolic tangent.
+            pub fn atanh(self) -> $float {
+                self.0.atanh()
+            }
+
+            /// Calculates the length of the hypotenuse of a right-angle triangle.
+            pub fn hypot(self, other: $float) -> $float {
+                self.0.hypot(other)
+            }
+        }
     };
 }
 
@@ -691,5 +1047,85 @@ mod tests {
 
         assert_eq!((low * high).get(), 0.1875);
         assert_eq!(UnitInterval::<f32>::HALF.lerp(10.0, 20.0), 15.0);
+    }
+
+    #[test]
+    fn unconstrained_arithmetic_returns_backing_float() {
+        let low = UnitInterval::<f32>::new(0.25).unwrap();
+        let high = UnitInterval::<f32>::new(0.75).unwrap();
+
+        let sum: f32 = low + high;
+        let difference: f32 = low - high;
+        let product: UnitInterval<f32> = low * high;
+        let scaled: f32 = low * 4.0;
+        let reverse_scaled: f32 = 4.0 * low;
+        let quotient: f32 = high / low;
+        let remainder: f32 = high % low;
+        let negated: f32 = -low;
+
+        assert_eq!(sum, 1.0);
+        assert_eq!(difference, -0.5);
+        assert_eq!(product.get(), 0.1875);
+        assert_eq!(scaled, 1.0);
+        assert_eq!(reverse_scaled, 1.0);
+        assert_eq!(quotient, 3.0);
+        assert_eq!(remainder, 0.0);
+        assert_eq!(negated, -0.25);
+    }
+
+    #[test]
+    fn comparisons_work_against_backing_float() {
+        let half = UnitInterval::<f32>::HALF;
+
+        assert_eq!(half, 0.5);
+        assert_eq!(0.5, half);
+        assert!(half < 0.75);
+        assert!(0.25 < half);
+        assert!(half >= 0.5);
+        assert!(0.5 <= half);
+    }
+
+    #[test]
+    fn math_methods_return_unit_interval_when_result_is_constrained() {
+        let half = UnitInterval::<f64>::HALF;
+
+        let floor: UnitInterval<f64> = half.floor();
+        let ceil: UnitInterval<f64> = half.ceil();
+        let round: UnitInterval<f64> = half.round();
+        let trunc: UnitInterval<f64> = half.trunc();
+        let fract: UnitInterval<f64> = half.fract();
+        let abs: UnitInterval<f64> = half.abs();
+        let sqrt: UnitInterval<f64> = half.sqrt();
+        let cbrt: UnitInterval<f64> = half.cbrt();
+        let atan: UnitInterval<f64> = half.atan();
+        let tanh: UnitInterval<f64> = half.tanh();
+        let asinh: UnitInterval<f64> = half.asinh();
+
+        assert_eq!(floor.get(), 0.5_f64.floor());
+        assert_eq!(ceil.get(), 0.5_f64.ceil());
+        assert_eq!(round.get(), 0.5_f64.round());
+        assert_eq!(trunc.get(), 0.5_f64.trunc());
+        assert_eq!(fract.get(), 0.5_f64.fract());
+        assert_eq!(abs.get(), 0.5_f64.abs());
+        assert_eq!(sqrt.get(), 0.5_f64.sqrt());
+        assert_eq!(cbrt.get(), 0.5_f64.cbrt());
+        assert_eq!(atan.get(), 0.5_f64.atan());
+        assert_eq!(tanh.get(), 0.5_f64.tanh());
+        assert_eq!(asinh.get(), 0.5_f64.asinh());
+    }
+
+    #[test]
+    fn unconstrained_math_methods_return_backing_float() {
+        let half = UnitInterval::<f64>::HALF;
+
+        let pow: f64 = half.powi(2);
+        let sine: f64 = half.sin();
+        let hypot: f64 = half.hypot(0.5);
+        let (sin, cos): (f64, f64) = half.sin_cos();
+
+        assert_eq!(pow, 0.25);
+        assert_eq!(sine, 0.5_f64.sin());
+        assert_eq!(hypot, 0.5_f64.hypot(0.5));
+        assert_eq!((sin, cos), 0.5_f64.sin_cos());
     }
 }
