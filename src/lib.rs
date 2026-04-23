@@ -46,6 +46,8 @@
 //!   Tests always enable these assertions.
 //! - `std`: enables APIs that require the Rust standard library. The crate is
 //!   otherwise `no_std`.
+//! - `rand_distr`: enables [`rand_distr::StandardUniform`] sampling for
+//!   [`UnitInterval`] and [`SignedUnitInterval`].
 //! - `rkyv`: enables zero-copy serialization and checked deserialization
 //!   through the inner floating-point value.
 //! - `serde`: enables transparent serialization and checked deserialization
@@ -71,6 +73,37 @@ pub use signed_unit_interval::SignedUnitInterval;
 pub use signed_unit_interval::SignedUnitIntervalError;
 pub use unit_interval::UnitInterval;
 pub use unit_interval::UnitIntervalError;
+
+#[cfg(feature = "rand_distr")]
+mod rand_distr {
+    use super::*;
+    use ::rand::Rng;
+    use ::rand_distr::{Distribution, StandardUniform};
+
+    impl<T> Distribution<UnitInterval<T>> for StandardUniform
+    where
+        T: UnitIntervalFloat,
+        StandardUniform: Distribution<T>,
+    {
+        #[inline]
+        fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> UnitInterval<T> {
+            UnitInterval::from_inner(<Self as Distribution<T>>::sample(self, rng))
+        }
+    }
+
+    impl<T> Distribution<SignedUnitInterval<T>> for StandardUniform
+    where
+        T: UnitIntervalFloat,
+        StandardUniform: Distribution<T>,
+    {
+        #[inline]
+        fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> SignedUnitInterval<T> {
+            let value = <Self as Distribution<T>>::sample(self, rng) * (T::ONE + T::ONE) - T::ONE;
+
+            SignedUnitInterval::from_inner(value)
+        }
+    }
+}
 
 mod private {
     pub trait Sealed {}
