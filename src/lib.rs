@@ -61,11 +61,13 @@
 #![no_std]
 #![cfg_attr(not(feature = "unsafe"), forbid(unsafe_code))]
 #![cfg_attr(feature = "unsafe", allow(unsafe_code))]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(any(test, feature = "std"))]
 extern crate std;
 
 #[cfg(feature = "rand_distr")]
+#[cfg_attr(docsrs, doc(cfg(feature = "rand_distr")))]
 pub mod random;
 mod signed_unit_interval;
 mod unit_interval;

@@ -33,6 +33,7 @@ impl fmt::Display for SignedUnitIntervalError {
 impl Error for SignedUnitIntervalError {}
 
 #[cfg(feature = "rkyv")]
+#[cfg_attr(docsrs, doc(cfg(feature = "rkyv")))]
 mod rkyv {
     use super::*;
     use ::rkyv::{
@@ -61,6 +62,7 @@ mod rkyv {
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 mod serde {
     use super::*;
     use ::serde::{Deserialize, Deserializer, Serialize, Serializer, de};
@@ -164,6 +166,7 @@ impl<T: UnitIntervalFloat> SignedUnitInterval<T> {
     }
 
     #[cfg(not(any(test, feature = "assertions")))]
+    #[cfg_attr(docsrs, doc(cfg(feature = "assertions")))]
     #[inline]
     fn assert_contains(_v: T) {}
 
@@ -252,6 +255,7 @@ impl<T: UnitIntervalFloat> SignedUnitInterval<T> {
     /// The caller must guarantee that `self + rhs` is inside `[-1, 1]` and not
     /// `NaN`.
     #[cfg(feature = "unsafe")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unsafe")))]
     #[inline]
     pub unsafe fn add_unchecked<R: Into<Self>>(self, rhs: R) -> Self {
         // SAFETY: Guaranteed by the caller.
@@ -277,6 +281,7 @@ impl<T: UnitIntervalFloat> SignedUnitInterval<T> {
     /// The caller must guarantee that `self - rhs` is inside `[-1, 1]` and not
     /// `NaN`.
     #[cfg(feature = "unsafe")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unsafe")))]
     #[inline]
     pub unsafe fn sub_unchecked<R: Into<Self>>(self, rhs: R) -> Self {
         // SAFETY: Guaranteed by the caller.
@@ -302,6 +307,7 @@ impl<T: UnitIntervalFloat> SignedUnitInterval<T> {
     /// The caller must guarantee that `self / rhs` is inside `[-1, 1]` and not
     /// `NaN`.
     #[cfg(feature = "unsafe")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unsafe")))]
     #[inline]
     pub unsafe fn div_unchecked<R: Into<Self>>(self, rhs: R) -> Self {
         // SAFETY: Guaranteed by the caller.
@@ -328,6 +334,7 @@ impl<T: UnitIntervalFloat> SignedUnitInterval<T> {
     /// The caller must guarantee that `self * factor` is inside `[-1, 1]` and
     /// not `NaN`.
     #[cfg(feature = "unsafe")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unsafe")))]
     #[inline]
     pub unsafe fn scale_unchecked(self, factor: T) -> Self {
         // SAFETY: Guaranteed by the caller.

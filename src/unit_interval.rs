@@ -56,6 +56,7 @@ impl fmt::Display for UnitIntervalError {
 impl Error for UnitIntervalError {}
 
 #[cfg(feature = "rkyv")]
+#[cfg_attr(docsrs, doc(cfg(feature = "rkyv")))]
 mod rkyv {
     use super::*;
     use ::rkyv::{
@@ -84,6 +85,7 @@ mod rkyv {
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 mod serde {
     use super::*;
     use ::serde::{Deserialize, Deserializer, Serialize, Serializer, de};
@@ -238,6 +240,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     }
 
     #[cfg(not(any(test, feature = "assertions")))]
+    #[cfg_attr(docsrs, doc(cfg(feature = "assertions")))]
     #[inline(always)]
     fn assert_contains(_v: T) {}
 
@@ -417,6 +420,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// The caller must guarantee that `self + rhs` is inside `[0, 1]` and not
     /// `NaN`.
     #[cfg(feature = "unsafe")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unsafe")))]
     #[inline(always)]
     pub unsafe fn add_unchecked(self, rhs: Self) -> Self {
         // SAFETY: Guaranteed by the caller.
@@ -464,6 +468,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// The caller must guarantee that `self - rhs` is inside `[0, 1]` and not
     /// `NaN`.
     #[cfg(feature = "unsafe")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unsafe")))]
     #[inline(always)]
     pub unsafe fn sub_unchecked(self, rhs: Self) -> Self {
         // SAFETY: Guaranteed by the caller.
@@ -516,6 +521,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// The caller must guarantee that `self / rhs` is inside `[0, 1]` and not
     /// `NaN`.
     #[cfg(feature = "unsafe")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unsafe")))]
     #[inline(always)]
     pub unsafe fn div_unchecked(self, rhs: Self) -> Self {
         // SAFETY: Guaranteed by the caller.
@@ -572,6 +578,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// The caller must guarantee that `self * factor` is inside `[0, 1]` and
     /// not `NaN`.
     #[cfg(feature = "unsafe")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "unsafe")))]
     #[inline(always)]
     pub unsafe fn scale_unchecked(self, factor: T) -> Self {
         // SAFETY: Guaranteed by the caller.

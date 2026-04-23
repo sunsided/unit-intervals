@@ -62,4 +62,5 @@ path = "tests/unsafe.rs"
 required-features = ["unsafe"]
 
 [package.metadata.docs.rs]
-features = ["assertions", "rand_distr", "rkyv", "serde", "unsafe"]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
