@@ -37,9 +37,14 @@ tasks:
       - "{{.CARGO}} check --no-default-features"
 
   lint:
-    desc: Run clippy for all targets and features
+    desc: Apply clippy fixes for all targets and features
     aliases:
       - clippy
+    cmds:
+      - "{{.CARGO}} clippy --fix --allow-dirty --all-features --all-targets"
+
+  lint:check:
+    desc: Check clippy lints for all targets and features
     cmds:
       - "{{.CARGO}} clippy --all-features --all-targets"
 
@@ -73,7 +78,7 @@ tasks:
       - fmt:check
       - check:all-features
       - check:no-features
-      - lint
+      - lint:check
       - test
       - test:all-features
       - test:no-features
