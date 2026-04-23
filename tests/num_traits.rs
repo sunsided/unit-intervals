@@ -1,6 +1,12 @@
 #![cfg(feature = "num-traits")]
 
-use num_traits::{AsPrimitive, Bounded, FromPrimitive, NumCast, ToBytes, ToPrimitive};
+use num_traits::{
+    AsPrimitive, Bounded, ConstOne, FromPrimitive, NumCast, One, Pow, ToBytes, ToPrimitive,
+    ops::{
+        checked::{CheckedMul, CheckedNeg},
+        saturating::SaturatingMul,
+    },
+};
 use unit_interval::{SignedUnitInterval, UnitInterval};
 
 #[test]
@@ -95,4 +101,76 @@ fn as_primitive_converts_out_of_wrappers() {
     assert_eq!(unit_wide, UnitInterval::new(0.25).unwrap());
     assert_eq!(signed_float, -0.25);
     assert_eq!(signed_narrow, SignedUnitInterval::new(-0.25).unwrap());
+}
+
+#[test]
+fn one_traits_return_upper_bound() {
+    assert_eq!(UnitInterval::<f32>::one(), UnitInterval::ONE);
+    assert_eq!(
+        <UnitInterval<f32> as ConstOne>::ONE,
+        UnitInterval::<f32>::ONE
+    );
+    assert!(UnitInterval::<f32>::ONE.is_one());
+
+    assert_eq!(SignedUnitInterval::<f64>::one(), SignedUnitInterval::ONE);
+    assert_eq!(
+        <SignedUnitInterval<f64> as ConstOne>::ONE,
+        SignedUnitInterval::<f64>::ONE
+    );
+    assert!(SignedUnitInterval::<f64>::ONE.is_one());
+}
+
+#[test]
+fn checked_mul_is_closed_over_intervals() {
+    let unit = UnitInterval::new(0.5_f32).unwrap();
+    let signed = SignedUnitInterval::new(-0.5_f64).unwrap();
+
+    assert_eq!(CheckedMul::checked_mul(&unit, &unit), Some(unit * unit));
+    assert_eq!(
+        CheckedMul::checked_mul(&signed, &signed),
+        Some(signed * signed)
+    );
+}
+
+#[test]
+fn saturating_mul_delegates_to_closed_multiplication() {
+    let low = UnitInterval::new(0.25_f32).unwrap();
+    let high = UnitInterval::new(0.75_f32).unwrap();
+
+    assert_eq!(SaturatingMul::saturating_mul(&low, &high), low * high);
+
+    let negative = SignedUnitInterval::new(-0.75_f64).unwrap();
+    let positive = SignedUnitInterval::new(0.75_f64).unwrap();
+
+    assert_eq!(
+        SaturatingMul::saturating_mul(&negative, &positive),
+        negative * positive
+    );
+}
+
+#[test]
+fn signed_unit_interval_supports_checked_negation() {
+    let negative = SignedUnitInterval::new(-0.25_f32).unwrap();
+
+    assert_eq!(
+        CheckedNeg::checked_neg(&negative),
+        Some(SignedUnitInterval::new(0.25).unwrap())
+    );
+}
+
+#[test]
+fn integer_powers_stay_in_interval() {
+    let unit = UnitInterval::new(0.5_f32).unwrap();
+    let signed = SignedUnitInterval::new(-0.5_f64).unwrap();
+
+    assert_eq!(unit.pow(0_u8), UnitInterval::ONE);
+    assert_eq!(unit.pow(3_u16), UnitInterval::new(0.125).unwrap());
+    assert_eq!((&unit).pow(&2_u32), UnitInterval::new(0.25).unwrap());
+
+    assert_eq!(signed.pow(0_usize), SignedUnitInterval::ONE);
+    assert_eq!(signed.pow(3_u8), SignedUnitInterval::new(-0.125).unwrap());
+    assert_eq!(
+        (&signed).pow(&2_u16),
+        SignedUnitInterval::new(0.25).unwrap()
+    );
 }

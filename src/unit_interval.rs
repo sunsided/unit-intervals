@@ -182,7 +182,10 @@ mod arbitrary {
 #[cfg_attr(docsrs, doc(cfg(feature = "num-traits")))]
 mod num_traits {
     use super::*;
-    use ::num_traits::{AsPrimitive, Bounded, FromPrimitive, NumCast, ToBytes, ToPrimitive};
+    use ::num_traits::{
+        AsPrimitive, Bounded, ConstOne, FromPrimitive, NumCast, One, Pow, ToBytes, ToPrimitive,
+        ops::{checked::CheckedMul, saturating::SaturatingMul},
+    };
 
     macro_rules! impl_num_traits_unit_interval {
         ($float:ty) => {
@@ -287,6 +290,22 @@ mod num_traits {
                 }
             }
 
+            impl One for UnitInterval<$float> {
+                #[inline]
+                fn one() -> Self {
+                    Self::ONE
+                }
+
+                #[inline]
+                fn is_one(&self) -> bool {
+                    UnitInterval::is_one(*self)
+                }
+            }
+
+            impl ConstOne for UnitInterval<$float> {
+                const ONE: Self = Self::ONE;
+            }
+
             impl Bounded for UnitInterval<$float> {
                 #[inline]
                 fn min_value() -> Self {
@@ -317,6 +336,60 @@ mod num_traits {
                     self.0.to_ne_bytes()
                 }
             }
+
+            impl CheckedMul for UnitInterval<$float> {
+                #[inline]
+                fn checked_mul(&self, v: &Self) -> Option<Self> {
+                    Some(*self * *v)
+                }
+            }
+
+            impl SaturatingMul for UnitInterval<$float> {
+                #[inline]
+                fn saturating_mul(&self, v: &Self) -> Self {
+                    *self * *v
+                }
+            }
+        };
+    }
+
+    macro_rules! impl_pow_unit_interval {
+        ($rhs:ty) => {
+            impl<T: UnitIntervalFloat> Pow<$rhs> for UnitInterval<T> {
+                type Output = Self;
+
+                #[inline]
+                fn pow(self, rhs: $rhs) -> Self::Output {
+                    pow_unit_interval(self, rhs as usize)
+                }
+            }
+
+            impl<T: UnitIntervalFloat> Pow<&$rhs> for UnitInterval<T> {
+                type Output = Self;
+
+                #[inline]
+                fn pow(self, rhs: &$rhs) -> Self::Output {
+                    pow_unit_interval(self, *rhs as usize)
+                }
+            }
+
+            impl<T: UnitIntervalFloat> Pow<$rhs> for &UnitInterval<T> {
+                type Output = UnitInterval<T>;
+
+                #[inline]
+                fn pow(self, rhs: $rhs) -> Self::Output {
+                    pow_unit_interval(*self, rhs as usize)
+                }
+            }
+
+            impl<T: UnitIntervalFloat> Pow<&$rhs> for &UnitInterval<T> {
+                type Output = UnitInterval<T>;
+
+                #[inline]
+                fn pow(self, rhs: &$rhs) -> Self::Output {
+                    pow_unit_interval(*self, *rhs as usize)
+                }
+            }
         };
     }
 
@@ -335,6 +408,10 @@ mod num_traits {
 
     impl_num_traits_unit_interval!(f32);
     impl_num_traits_unit_interval!(f64);
+    impl_pow_unit_interval!(u8);
+    impl_pow_unit_interval!(u16);
+    impl_pow_unit_interval!(u32);
+    impl_pow_unit_interval!(usize);
 
     impl_as_primitive_unit_interval!(f32 => f32, f64);
     impl_as_primitive_unit_interval!(f64 => f32, f64);
@@ -365,6 +442,30 @@ mod num_traits {
         fn as_(self) -> UnitInterval<f64> {
             self
         }
+    }
+
+    #[inline]
+    fn pow_unit_interval<T: UnitIntervalFloat>(
+        base: UnitInterval<T>,
+        exp: usize,
+    ) -> UnitInterval<T> {
+        let mut result = UnitInterval::ONE;
+        let mut factor = base;
+        let mut exp = exp;
+
+        while exp > 0 {
+            if exp & 1 == 1 {
+                result = result * factor;
+            }
+
+            exp >>= 1;
+
+            if exp > 0 {
+                factor = factor * factor;
+            }
+        }
+
+        result
     }
 }
 

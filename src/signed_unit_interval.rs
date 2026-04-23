@@ -160,7 +160,13 @@ mod arbitrary {
 #[cfg_attr(docsrs, doc(cfg(feature = "num-traits")))]
 mod num_traits {
     use super::*;
-    use ::num_traits::{AsPrimitive, Bounded, FromPrimitive, NumCast, ToBytes, ToPrimitive};
+    use ::num_traits::{
+        AsPrimitive, Bounded, ConstOne, FromPrimitive, NumCast, One, Pow, ToBytes, ToPrimitive,
+        ops::{
+            checked::{CheckedMul, CheckedNeg},
+            saturating::SaturatingMul,
+        },
+    };
 
     macro_rules! impl_num_traits_signed_unit_interval {
         ($float:ty) => {
@@ -265,6 +271,22 @@ mod num_traits {
                 }
             }
 
+            impl One for SignedUnitInterval<$float> {
+                #[inline]
+                fn one() -> Self {
+                    Self::ONE
+                }
+
+                #[inline]
+                fn is_one(&self) -> bool {
+                    SignedUnitInterval::is_one(*self)
+                }
+            }
+
+            impl ConstOne for SignedUnitInterval<$float> {
+                const ONE: Self = Self::ONE;
+            }
+
             impl Bounded for SignedUnitInterval<$float> {
                 #[inline]
                 fn min_value() -> Self {
@@ -295,6 +317,67 @@ mod num_traits {
                     self.0.to_ne_bytes()
                 }
             }
+
+            impl CheckedMul for SignedUnitInterval<$float> {
+                #[inline]
+                fn checked_mul(&self, v: &Self) -> Option<Self> {
+                    Some(*self * *v)
+                }
+            }
+
+            impl CheckedNeg for SignedUnitInterval<$float> {
+                #[inline]
+                fn checked_neg(&self) -> Option<Self> {
+                    Some(-*self)
+                }
+            }
+
+            impl SaturatingMul for SignedUnitInterval<$float> {
+                #[inline]
+                fn saturating_mul(&self, v: &Self) -> Self {
+                    *self * *v
+                }
+            }
+        };
+    }
+
+    macro_rules! impl_pow_signed_unit_interval {
+        ($rhs:ty) => {
+            impl<T: UnitIntervalFloat> Pow<$rhs> for SignedUnitInterval<T> {
+                type Output = Self;
+
+                #[inline]
+                fn pow(self, rhs: $rhs) -> Self::Output {
+                    pow_signed_unit_interval(self, rhs as usize)
+                }
+            }
+
+            impl<T: UnitIntervalFloat> Pow<&$rhs> for SignedUnitInterval<T> {
+                type Output = Self;
+
+                #[inline]
+                fn pow(self, rhs: &$rhs) -> Self::Output {
+                    pow_signed_unit_interval(self, *rhs as usize)
+                }
+            }
+
+            impl<T: UnitIntervalFloat> Pow<$rhs> for &SignedUnitInterval<T> {
+                type Output = SignedUnitInterval<T>;
+
+                #[inline]
+                fn pow(self, rhs: $rhs) -> Self::Output {
+                    pow_signed_unit_interval(*self, rhs as usize)
+                }
+            }
+
+            impl<T: UnitIntervalFloat> Pow<&$rhs> for &SignedUnitInterval<T> {
+                type Output = SignedUnitInterval<T>;
+
+                #[inline]
+                fn pow(self, rhs: &$rhs) -> Self::Output {
+                    pow_signed_unit_interval(*self, *rhs as usize)
+                }
+            }
         };
     }
 
@@ -313,6 +396,10 @@ mod num_traits {
 
     impl_num_traits_signed_unit_interval!(f32);
     impl_num_traits_signed_unit_interval!(f64);
+    impl_pow_signed_unit_interval!(u8);
+    impl_pow_signed_unit_interval!(u16);
+    impl_pow_signed_unit_interval!(u32);
+    impl_pow_signed_unit_interval!(usize);
 
     impl_as_primitive_signed_unit_interval!(f32 => f32, f64);
     impl_as_primitive_signed_unit_interval!(f64 => f32, f64);
@@ -343,6 +430,30 @@ mod num_traits {
         fn as_(self) -> SignedUnitInterval<f64> {
             self
         }
+    }
+
+    #[inline]
+    fn pow_signed_unit_interval<T: UnitIntervalFloat>(
+        base: SignedUnitInterval<T>,
+        exp: usize,
+    ) -> SignedUnitInterval<T> {
+        let mut result = SignedUnitInterval::ONE;
+        let mut factor = base;
+        let mut exp = exp;
+
+        while exp > 0 {
+            if exp & 1 == 1 {
+                result = result * factor;
+            }
+
+            exp >>= 1;
+
+            if exp > 0 {
+                factor = factor * factor;
+            }
+        }
+
+        result
     }
 }
 
