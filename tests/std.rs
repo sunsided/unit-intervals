@@ -1,4 +1,4 @@
-use unit_interval::{SignedUnitInterval, UnitInterval};
+use unit_intervals::{SignedUnitInterval, UnitInterval};
 
 #[test]
 fn unit_interval_std_float_methods_return_unit_interval_when_result_is_constrained() {

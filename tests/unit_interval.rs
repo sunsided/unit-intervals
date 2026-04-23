@@ -1,6 +1,6 @@
 use std::string::ToString;
 
-use unit_interval::UnitInterval;
+use unit_intervals::UnitInterval;
 
 #[test]
 fn f32_constructor_accepts_unit_interval() {

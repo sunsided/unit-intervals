@@ -1,4 +1,4 @@
-use unit_interval::{SignedUnitInterval, UnitInterval};
+use unit_intervals::{SignedUnitInterval, UnitInterval};
 
 #[test]
 fn unit_interval_core_float_methods_are_available_without_std() {

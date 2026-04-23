@@ -1,4 +1,4 @@
-use unit_interval::{SignedUnitInterval, UnitInterval};
+use unit_intervals::{SignedUnitInterval, UnitInterval};
 
 #[test]
 fn constructors_accept_signed_unit_interval() {

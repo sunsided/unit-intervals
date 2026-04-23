@@ -1,6 +1,6 @@
-# unit-interval
+# unit-intervals
 
-[![CI](https://github.com/sunsided/unit-interval/actions/workflows/ci.yml/badge.svg)](https://github.com/sunsided/unit-interval/actions/workflows/ci.yml)
+[![CI](https://github.com/sunsided/unit-intervals/actions/workflows/ci.yml/badge.svg)](https://github.com/sunsided/unit-intervals/actions/workflows/ci.yml)
 [![license: EUPL-1.2](https://img.shields.io/badge/license-EUPL--1.2-blue.svg)](https://github.com/sunsided/unit-interval/blob/main/Cargo.toml)
 [![unsafe optional](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 [![no_std compatible](https://img.shields.io/badge/no__std-compatible-informational.svg)](https://docs.rust-embedded.org/book/intro/no-std.html)
@@ -36,7 +36,7 @@ arrive.
 ## Examples
 
 ```rust
-use unit_interval::UnitInterval;
+use unit_intervals::UnitInterval;
 
 let probability = UnitInterval::new(0.8).unwrap();
 let clamped = UnitInterval::saturating(1.2);
@@ -47,7 +47,7 @@ assert_eq!(UnitInterval::<f32>::new(f32::NAN), None);
 ```
 
 ```rust
-use unit_interval::{SignedUnitInterval, UnitInterval};
+use unit_intervals::{SignedUnitInterval, UnitInterval};
 
 let axis = SignedUnitInterval::new(-0.5).unwrap();
 let weight = UnitInterval::new(0.25).unwrap();
@@ -57,7 +57,7 @@ assert_eq!(axis.saturating_add(weight).get(), -0.25);
 ```
 
 ```rust
-use unit_interval::UnitInterval;
+use unit_intervals::UnitInterval;
 
 fn mix(start: f32, end: f32, amount: UnitInterval) -> f32 {
     amount.lerp(start, end)

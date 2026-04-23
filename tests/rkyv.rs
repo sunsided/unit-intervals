@@ -1,6 +1,6 @@
 #![cfg(feature = "rkyv")]
 
-use unit_interval::{SignedUnitInterval, UnitInterval};
+use unit_intervals::{SignedUnitInterval, UnitInterval};
 
 #[test]
 fn unit_interval_round_trips_through_archive() {

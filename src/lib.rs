@@ -17,7 +17,7 @@
 //! # Examples
 //!
 //! ```
-//! use unit_interval::UnitInterval;
+//! use unit_intervals::UnitInterval;
 //!
 //! let opacity = UnitInterval::new(0.8).unwrap();
 //! let clamped = UnitInterval::saturating(1.2);
@@ -27,7 +27,7 @@
 //! ```
 //!
 //! ```
-//! use unit_interval::{SignedUnitInterval, UnitInterval};
+//! use unit_intervals::{SignedUnitInterval, UnitInterval};
 //!
 //! let axis = SignedUnitInterval::new(-0.5).unwrap();
 //! let scale = UnitInterval::new(0.25).unwrap();

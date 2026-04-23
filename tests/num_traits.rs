@@ -7,7 +7,7 @@ use num_traits::{
         saturating::SaturatingMul,
     },
 };
-use unit_interval::{SignedUnitInterval, UnitInterval};
+use unit_intervals::{SignedUnitInterval, UnitInterval};
 
 #[test]
 fn unit_interval_converts_to_primitives() {

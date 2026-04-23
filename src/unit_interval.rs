@@ -17,7 +17,7 @@ use core::{
 /// # Examples
 ///
 /// ```
-/// use unit_interval::UnitInterval;
+/// use unit_intervals::UnitInterval;
 ///
 /// let progress = UnitInterval::new(0.75).unwrap();
 ///
@@ -38,7 +38,7 @@ pub struct UnitInterval<T = f32>(T);
 /// # Examples
 ///
 /// ```
-/// use unit_interval::UnitInterval;
+/// use unit_intervals::UnitInterval;
 ///
 /// let err = UnitInterval::<f32>::try_from(2.0).unwrap_err();
 ///
@@ -475,7 +475,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// assert_eq!(UnitInterval::<f32>::ZERO.get(), 0.0);
     /// ```
@@ -486,7 +486,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// assert_eq!(UnitInterval::<f32>::ONE.get(), 1.0);
     /// ```
@@ -497,7 +497,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// assert_eq!(UnitInterval::<f32>::HALF.get(), 0.5);
     /// ```
@@ -510,7 +510,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// assert_eq!(UnitInterval::<f32>::new(0.25).unwrap().get(), 0.25);
     /// assert_eq!(UnitInterval::<f32>::new(-0.25), None);
@@ -544,7 +544,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// assert!(UnitInterval::<f32>::contains(0.5));
     /// assert!(!UnitInterval::<f32>::contains(1.5));
@@ -562,7 +562,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// assert_eq!(UnitInterval::<f32>::saturating(-0.25).get(), 0.0);
     /// assert_eq!(UnitInterval::<f32>::saturating(1.25).get(), 1.0);
@@ -598,7 +598,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let value = UnitInterval::new(0.25).unwrap();
     ///
@@ -614,7 +614,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let value = UnitInterval::new(0.25).unwrap();
     ///
@@ -630,7 +630,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// assert!(UnitInterval::<f32>::ZERO.is_zero());
     /// assert!(!UnitInterval::<f32>::HALF.is_zero());
@@ -645,7 +645,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// assert!(UnitInterval::<f32>::ONE.is_one());
     /// assert!(!UnitInterval::<f32>::HALF.is_one());
@@ -660,7 +660,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let value = UnitInterval::new(0.25).unwrap();
     ///
@@ -676,7 +676,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let low = UnitInterval::new(0.25).unwrap();
     /// let high = UnitInterval::new(0.75).unwrap();
@@ -693,7 +693,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let low = UnitInterval::new(0.25).unwrap();
     /// let high = UnitInterval::new(0.75).unwrap();
@@ -710,7 +710,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let low = UnitInterval::new(0.25).unwrap();
     /// let high = UnitInterval::new(0.75).unwrap();
@@ -727,7 +727,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let low = UnitInterval::new(0.25).unwrap();
     /// let high = UnitInterval::new(0.75).unwrap();
@@ -749,7 +749,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let a = UnitInterval::new(0.25).unwrap();
     /// let b = UnitInterval::new(0.75).unwrap();
@@ -781,7 +781,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let value = UnitInterval::new(0.75).unwrap();
     ///
@@ -797,7 +797,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let low = UnitInterval::new(0.25).unwrap();
     /// let high = UnitInterval::new(0.75).unwrap();
@@ -829,7 +829,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let low = UnitInterval::new(0.25).unwrap();
     /// let high = UnitInterval::new(0.75).unwrap();
@@ -849,7 +849,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let low = UnitInterval::new(0.25).unwrap();
     /// let high = UnitInterval::new(0.75).unwrap();
@@ -885,7 +885,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let low = UnitInterval::new(0.25).unwrap();
     /// let high = UnitInterval::new(0.75).unwrap();
@@ -907,7 +907,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let value = UnitInterval::new(0.25).unwrap();
     ///
@@ -942,7 +942,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// let value = UnitInterval::new(0.75).unwrap();
     ///
@@ -962,7 +962,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// # Examples
     ///
     /// ```
-    /// use unit_interval::UnitInterval;
+    /// use unit_intervals::UnitInterval;
     ///
     /// assert_eq!(UnitInterval::<f32>::ZERO.lerp(10.0, 20.0), 10.0);
     /// assert_eq!(UnitInterval::<f32>::HALF.lerp(10.0, 20.0), 15.0);
@@ -1502,7 +1502,7 @@ impl From<UnitInterval<f64>> for UnitInterval<f32> {
 /// # Examples
 ///
 /// ```
-/// use unit_interval::UnitInterval;
+/// use unit_intervals::UnitInterval;
 ///
 /// let a = UnitInterval::new(0.25).unwrap();
 /// let b = UnitInterval::new(0.75).unwrap();

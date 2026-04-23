@@ -1,7 +1,7 @@
 #![cfg(feature = "bytemuck")]
 
 use bytemuck::{CheckedBitPattern, Zeroable};
-use unit_interval::{SignedUnitInterval, UnitInterval};
+use unit_intervals::{SignedUnitInterval, UnitInterval};
 
 #[test]
 fn unit_interval_is_zeroable() {

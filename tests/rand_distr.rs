@@ -2,7 +2,7 @@
 
 use rand::{RngExt, SeedableRng, rngs::StdRng};
 use rand_distr::{Beta, Distribution, Open01, OpenClosed01, StandardUniform};
-use unit_interval::{
+use unit_intervals::{
     SignedUnitInterval, UnitInterval,
     random::{
         CheckedSignedUnitIntervalDistribution, CheckedUnitIntervalDistribution,

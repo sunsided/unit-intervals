@@ -1,7 +1,7 @@
 #![cfg(feature = "arbitrary")]
 
 use arbitrary::{Arbitrary, Unstructured};
-use unit_interval::{SignedUnitInterval, UnitInterval};
+use unit_intervals::{SignedUnitInterval, UnitInterval};
 
 #[test]
 fn unit_interval_arbitrary_generates_values_inside_interval() {

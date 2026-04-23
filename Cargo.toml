@@ -1,11 +1,11 @@
 [package]
-name = "unit-interval"
+name = "unit-intervals"
 version = "0.1.0"
 edition = "2024"
 authors = ["Markus Mayer <widemeadows@gmail.com>"]
 description = "Constrained f32/f64 wrapper types for normalized [0, 1] and [-1, 1] values."
 license = "EUPL-1.2"
-repository = "https://github.com/sunsided/unit-interval"
+repository = "https://github.com/sunsided/unit-intervals"
 keywords = ["unit-interval", "normalized", "probability", "float", "no-std"]
 categories = ["data-structures", "mathematics", "no-std"]
 

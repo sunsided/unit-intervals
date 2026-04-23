@@ -11,7 +11,7 @@
 //! ```
 //! use rand::{RngExt, SeedableRng, rngs::StdRng};
 //! use rand_distr::{Distribution, StandardUniform};
-//! use unit_interval::{SignedUnitInterval, UnitInterval};
+//! use unit_intervals::{SignedUnitInterval, UnitInterval};
 //!
 //! let mut rng = StdRng::seed_from_u64(42);
 //!
@@ -28,7 +28,7 @@
 //! ```
 //! use rand::{SeedableRng, rngs::StdRng};
 //! use rand_distr::{Beta, Distribution, Open01, OpenClosed01};
-//! use unit_interval::UnitInterval;
+//! use unit_intervals::UnitInterval;
 //!
 //! let mut rng = StdRng::seed_from_u64(42);
 //! let beta = Beta::new(2.0_f64, 5.0).unwrap();
@@ -49,7 +49,7 @@
 //! ```
 //! use rand::{SeedableRng, rngs::StdRng};
 //! use rand_distr::{Distribution, Normal};
-//! use unit_interval::{
+//! use unit_intervals::{
 //!     UnitInterval,
 //!     random::{CheckedUnitIntervalDistribution, SaturatingUnitIntervalDistribution},
 //! };
@@ -71,7 +71,7 @@
 //! ```
 //! use rand::{SeedableRng, rngs::StdRng};
 //! use rand_distr::{Distribution, Normal};
-//! use unit_interval::{
+//! use unit_intervals::{
 //!     SignedUnitInterval,
 //!     random::{
 //!         CheckedSignedUnitIntervalDistribution, SaturatingSignedUnitIntervalDistribution,

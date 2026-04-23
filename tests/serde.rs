@@ -1,6 +1,6 @@
 #![cfg(feature = "serde")]
 
-use unit_interval::{SignedUnitInterval, UnitInterval};
+use unit_intervals::{SignedUnitInterval, UnitInterval};
 
 #[test]
 fn unit_interval_serializes_as_inner_value_and_deserializes_through_checked_constructor() {

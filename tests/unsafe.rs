@@ -1,6 +1,6 @@
 #![cfg(feature = "unsafe")]
 
-use unit_interval::{SignedUnitInterval, UnitInterval};
+use unit_intervals::{SignedUnitInterval, UnitInterval};
 
 #[test]
 fn unit_interval_exposes_unchecked_construction_and_arithmetic() {
