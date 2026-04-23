@@ -44,6 +44,10 @@
 //!
 //! - `assertions`: enables internal invariant assertions in non-test builds.
 //!   Tests always enable these assertions.
+//! - `bytemuck`: enables [`bytemuck::Zeroable`], [`bytemuck::NoUninit`], and
+//!   [`bytemuck::CheckedBitPattern`] support. These wrappers do not implement
+//!   [`bytemuck::Pod`] because not every backing float bit pattern satisfies
+//!   their interval invariants.
 //! - `std`: enables APIs that require the Rust standard library. The crate is
 //!   otherwise `no_std`.
 //! - `rand_distr`: enables [`rand_distr`] distribution support for
@@ -59,8 +63,11 @@
 //!   is not `NaN`.
 
 #![no_std]
-#![cfg_attr(not(feature = "unsafe"), forbid(unsafe_code))]
-#![cfg_attr(feature = "unsafe", allow(unsafe_code))]
+#![cfg_attr(
+    not(any(feature = "unsafe", feature = "bytemuck")),
+    forbid(unsafe_code)
+)]
+#![cfg_attr(any(feature = "unsafe", feature = "bytemuck"), allow(unsafe_code))]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(any(test, feature = "std"))]

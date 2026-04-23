@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/sunsided/unit-interval/actions/workflows/ci.yml/badge.svg)](https://github.com/sunsided/unit-interval/actions/workflows/ci.yml)
 [![license: EUPL-1.2](https://img.shields.io/badge/license-EUPL--1.2-blue.svg)](https://github.com/sunsided/unit-interval/blob/main/Cargo.toml)
-[![unsafe forbidden](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
+[![unsafe optional](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 [![no_std compatible](https://img.shields.io/badge/no__std-compatible-informational.svg)](https://docs.rust-embedded.org/book/intro/no-std.html)
 
 Small constrained float types for values in the closed intervals `[0, 1]` and
@@ -70,6 +70,9 @@ assert_eq!(mix(10.0, 20.0, UnitInterval::HALF), 15.0);
 
 - `std` is enabled by default and provides APIs that require the Rust standard
   library. Disable default features for `no_std` use.
+- `bytemuck` enables `Zeroable`, `NoUninit`, and `CheckedBitPattern` support.
+  The interval wrappers intentionally do not implement `Pod`, because not every
+  backing float bit pattern is valid for these constrained types.
 - `serde` enables transparent serialization and checked deserialization through
   the inner floating-point value.
 - `rkyv` enables zero-copy serialization and checked deserialization through the
@@ -78,9 +81,10 @@ assert_eq!(mix(10.0, 20.0, UnitInterval::HALF), 15.0);
 - `unsafe` enables unchecked constructors and operations such as
   `UnitInterval::new_unchecked` and `SignedUnitInterval::new_unchecked`.
 
-Unsafe code is forbidden unless the `unsafe` feature is explicitly enabled. The
-unchecked APIs are behind that feature gate and require the caller to prove the
-value is inside the relevant interval and is not `NaN`.
+Unsafe code is forbidden unless the `unsafe` or `bytemuck` feature is explicitly
+enabled. The unchecked APIs are behind the `unsafe` feature gate and require the
+caller to prove the value is inside the relevant interval and is not `NaN`; the
+`bytemuck` feature only enables unsafe marker-trait implementations.
 
 ## Development
 

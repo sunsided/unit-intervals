@@ -30,6 +30,7 @@ use core::{
     rkyv(crate = ::rkyv)
 )]
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
+#[repr(transparent)]
 pub struct UnitInterval<T = f32>(T);
 
 /// Error returned when converting an out-of-range value into a [`UnitInterval`].
@@ -116,6 +117,34 @@ mod serde {
             let value = T::deserialize(deserializer)?;
 
             Self::new(value).ok_or_else(|| de::Error::custom(UnitIntervalError))
+        }
+    }
+}
+
+#[cfg(feature = "bytemuck")]
+#[cfg_attr(docsrs, doc(cfg(feature = "bytemuck")))]
+mod bytemuck {
+    use super::*;
+
+    unsafe impl<T> ::bytemuck::Zeroable for UnitInterval<T> where
+        T: UnitIntervalFloat + ::bytemuck::Zeroable
+    {
+    }
+
+    unsafe impl<T> ::bytemuck::NoUninit for UnitInterval<T> where
+        T: UnitIntervalFloat + ::bytemuck::NoUninit
+    {
+    }
+
+    unsafe impl<T> ::bytemuck::CheckedBitPattern for UnitInterval<T>
+    where
+        T: UnitIntervalFloat + ::bytemuck::AnyBitPattern,
+    {
+        type Bits = T;
+
+        #[inline]
+        fn is_valid_bit_pattern(bits: &Self::Bits) -> bool {
+            UnitInterval::contains(*bits)
         }
     }
 }
