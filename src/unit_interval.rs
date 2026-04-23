@@ -149,6 +149,35 @@ mod bytemuck {
     }
 }
 
+#[cfg(feature = "arbitrary")]
+#[cfg_attr(docsrs, doc(cfg(feature = "arbitrary")))]
+mod arbitrary {
+    use super::*;
+    use ::arbitrary::{Arbitrary, Result, Unstructured};
+
+    macro_rules! impl_arbitrary_unit_interval {
+        ($float:ty, $unsigned:ty) => {
+            impl<'a> Arbitrary<'a> for UnitInterval<$float> {
+                #[inline]
+                fn arbitrary(u: &mut Unstructured<'a>) -> Result<Self> {
+                    let raw = <$unsigned as Arbitrary<'a>>::arbitrary(u)?;
+                    let value = raw as $float / <$unsigned>::MAX as $float;
+
+                    Ok(Self::from_inner(value))
+                }
+
+                #[inline]
+                fn size_hint(depth: usize) -> (usize, Option<usize>) {
+                    <$unsigned as Arbitrary<'a>>::size_hint(depth)
+                }
+            }
+        };
+    }
+
+    impl_arbitrary_unit_interval!(f32, u32);
+    impl_arbitrary_unit_interval!(f64, u64);
+}
+
 impl<T: UnitIntervalFloat> UnitInterval<T> {
     /// The lower bound of the unit interval.
     ///

@@ -44,6 +44,8 @@
 //!
 //! - `assertions`: enables internal invariant assertions in non-test builds.
 //!   Tests always enable these assertions.
+//! - `arbitrary`: enables [`arbitrary::Arbitrary`] support for generating
+//!   valid fuzz inputs.
 //! - `bytemuck`: enables [`bytemuck::Zeroable`], [`bytemuck::NoUninit`], and
 //!   [`bytemuck::CheckedBitPattern`] support. These wrappers do not implement
 //!   [`bytemuck::Pod`] because not every backing float bit pattern satisfies

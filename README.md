@@ -70,6 +70,7 @@ assert_eq!(mix(10.0, 20.0, UnitInterval::HALF), 15.0);
 
 - `std` is enabled by default and provides APIs that require the Rust standard
   library. Disable default features for `no_std` use.
+- `arbitrary` enables `Arbitrary` support for generating valid fuzz inputs.
 - `bytemuck` enables `Zeroable`, `NoUninit`, and `CheckedBitPattern` support.
   The interval wrappers intentionally do not implement `Pod`, because not every
   backing float bit pattern is valid for these constrained types.
