@@ -96,4 +96,6 @@ This repository uses the Taskfile as the local automation entry point:
 task fmt:check
 task lint:check
 task test:all-features
+task fuzz:build
+task fuzz:smoke
 ```

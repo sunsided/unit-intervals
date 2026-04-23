@@ -1,0 +1,36 @@
+[package]
+name = "unit-interval-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[features]
+default = ["std", "arbitrary"]
+std = ["unit-interval/std"]
+assertions = ["unit-interval/assertions"]
+unsafe = ["unit-interval/unsafe"]
+arbitrary = ["unit-interval/arbitrary"]
+bytemuck = ["dep:bytemuck", "unit-interval/bytemuck"]
+num-traits = ["dep:num-traits", "unit-interval/num-traits"]
+rand_distr = ["unit-interval/rand_distr"]
+rkyv = ["dep:rkyv", "unit-interval/rkyv"]
+serde = ["dep:serde_json", "unit-interval/serde"]
+
+[dependencies]
+arbitrary = { version = "1.4", features = ["derive"] }
+bytemuck = { version = "1.25", default-features = false, optional = true }
+libfuzzer-sys = "0.4"
+num-traits = { version = "0.2.19", default-features = false, optional = true }
+rkyv = { version = "0.8.16", features = ["alloc"], optional = true }
+serde_json = { version = "1.0", optional = true }
+unit-interval = { path = "..", default-features = false }
+
+[[bin]]
+name = "invariants"
+path = "fuzz_targets/invariants.rs"
+test = false
+doc = false
+bench = false
