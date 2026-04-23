@@ -107,7 +107,7 @@ fn check_signed_f32(a_bits: u32, b_bits: u32, factor_bits: u32) {
             assert_signed_f32_invariants(a.min(b));
             assert_signed_f32_invariants(a.max(b));
             assert_signed_f32_invariants(a.midpoint(b));
-            assert!(UnitInterval::<f32>::contains(a.distance_to(b)));
+            assert_signed_distance_f32(a.distance_to(b), a.get(), b.get());
             assert_checked_signed_f32(a.checked_add(b), a.get() + b.get());
             assert_checked_signed_f32(a.checked_sub(b), a.get() - b.get());
             assert_checked_signed_f32(a.checked_div(b), a.get() / b.get());
@@ -136,6 +136,12 @@ fn assert_checked_signed_f32(value: Option<SignedUnitInterval<f32>>, raw: f32) {
     if let Some(value) = value {
         assert_signed_f32_invariants(value);
     }
+}
+
+fn assert_signed_distance_f32(distance: f32, a: f32, b: f32) {
+    assert!(distance >= 0.0);
+    assert!(distance <= 2.0);
+    assert_eq!(distance, (a - b).abs());
 }
 
 fn check_unit_f64(a_bits: u64, b_bits: u64, factor_bits: u64) {
@@ -216,7 +222,7 @@ fn check_signed_f64(a_bits: u64, b_bits: u64, factor_bits: u64) {
             assert_signed_f64_invariants(a.min(b));
             assert_signed_f64_invariants(a.max(b));
             assert_signed_f64_invariants(a.midpoint(b));
-            assert!(UnitInterval::<f64>::contains(a.distance_to(b)));
+            assert_signed_distance_f64(a.distance_to(b), a.get(), b.get());
             assert_checked_signed_f64(a.checked_add(b), a.get() + b.get());
             assert_checked_signed_f64(a.checked_sub(b), a.get() - b.get());
             assert_checked_signed_f64(a.checked_div(b), a.get() / b.get());
@@ -243,6 +249,12 @@ fn assert_checked_signed_f64(value: Option<SignedUnitInterval<f64>>, raw: f64) {
     if let Some(value) = value {
         assert_signed_f64_invariants(value);
     }
+}
+
+fn assert_signed_distance_f64(distance: f64, a: f64, b: f64) {
+    assert!(distance >= 0.0);
+    assert!(distance <= 2.0);
+    assert_eq!(distance, (a - b).abs());
 }
 
 #[cfg(feature = "arbitrary")]

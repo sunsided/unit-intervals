@@ -91,7 +91,7 @@ tasks:
   fuzz:
     desc: Run the invariants fuzz target
     cmds:
-      - "{{.FUZZ_CARGO}} fuzz run invariants"
+      - "{{.FUZZ_CARGO}} fuzz run invariants --features assertions,unsafe,bytemuck,num-traits,rand_distr,rkyv,serde"
 
   fuzz:smoke:
     desc: Run the invariants fuzz target briefly
