@@ -7,8 +7,8 @@ license = "EUPL-1.2"
 repository = "https://github.com/sunsided/unit-interval"
 
 [features]
-## No optional behavior is enabled by default.
-default = []
+## The `std` feature is enabled by default.
+default = ["std"]
 ## Enable internal invariant assertions in non-test builds.
 assertions = []
 ## Enable APIs that require the Rust standard library.
@@ -27,6 +27,26 @@ serde = { version = "1.0", default-features = false, optional = true }
 [dev-dependencies]
 rkyv = { version = "0.8.16", features = ["alloc"] }
 serde_json = "1.0"
+
+[[test]]
+name = "rkyv"
+path = "tests/rkyv.rs"
+required-features = ["rkyv"]
+
+[[test]]
+name = "serde"
+path = "tests/serde.rs"
+required-features = ["serde"]
+
+[[test]]
+name = "std"
+path = "tests/std.rs"
+required-features = ["std"]
+
+[[test]]
+name = "unsafe"
+path = "tests/unsafe.rs"
+required-features = ["unsafe"]
 
 [package.metadata.docs.rs]
 features = ["assertions", "rkyv", "serde", "unsafe"]

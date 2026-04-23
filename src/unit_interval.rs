@@ -852,38 +852,7 @@ macro_rules! impl_unit_interval_float {
             }
         }
 
-        #[cfg(any(test, feature = "std"))]
         impl UnitInterval<$float> {
-            /// Returns the largest integer less than or equal to this value.
-            #[inline]
-            pub fn floor(self) -> Self {
-                Self::from_inner(self.0.floor())
-            }
-
-            /// Returns the smallest integer greater than or equal to this value.
-            #[inline]
-            pub fn ceil(self) -> Self {
-                Self::from_inner(self.0.ceil())
-            }
-
-            /// Returns the nearest integer to this value, rounding halfway cases away from zero.
-            #[inline]
-            pub fn round(self) -> Self {
-                Self::from_inner(self.0.round())
-            }
-
-            /// Returns the integer part of this value.
-            #[inline]
-            pub fn trunc(self) -> Self {
-                Self::from_inner(self.0.trunc())
-            }
-
-            /// Returns the fractional part of this value.
-            #[inline]
-            pub fn fract(self) -> Self {
-                Self::from_inner(self.0.fract())
-            }
-
             /// Returns the absolute value.
             #[inline]
             pub fn abs(self) -> Self {
@@ -936,6 +905,39 @@ macro_rules! impl_unit_interval_float {
             #[inline(always)]
             pub fn recip(self) -> $float {
                 self.0.recip()
+            }
+        }
+
+        #[cfg(any(test, feature = "std"))]
+        impl UnitInterval<$float> {
+            /// Returns the largest integer less than or equal to this value.
+            #[inline]
+            pub fn floor(self) -> Self {
+                Self::from_inner(self.0.floor())
+            }
+
+            /// Returns the smallest integer greater than or equal to this value.
+            #[inline]
+            pub fn ceil(self) -> Self {
+                Self::from_inner(self.0.ceil())
+            }
+
+            /// Returns the nearest integer to this value, rounding halfway cases away from zero.
+            #[inline]
+            pub fn round(self) -> Self {
+                Self::from_inner(self.0.round())
+            }
+
+            /// Returns the integer part of this value.
+            #[inline]
+            pub fn trunc(self) -> Self {
+                Self::from_inner(self.0.trunc())
+            }
+
+            /// Returns the fractional part of this value.
+            #[inline]
+            pub fn fract(self) -> Self {
+                Self::from_inner(self.0.fract())
             }
 
             /// Raises this value to an integer power.
@@ -1163,34 +1165,6 @@ impl<T: UnitIntervalFloat> Mul for UnitInterval<T> {
 #[cfg(test)]
 mod tests {
     use super::UnitInterval;
-    use std::string::ToString;
-
-    #[test]
-    fn f32_constructor_accepts_unit_interval() {
-        let default_width: UnitInterval = UnitInterval::new(0.5).unwrap();
-
-        assert_eq!(default_width.get(), 0.5);
-        assert_eq!(UnitInterval::<f32>::new(0.0).map(|u| u.get()), Some(0.0));
-        assert_eq!(UnitInterval::<f32>::new(0.5).map(|u| u.get()), Some(0.5));
-        assert_eq!(UnitInterval::<f32>::new(1.0).map(|u| u.get()), Some(1.0));
-        assert_eq!(UnitInterval::<f32>::new(-0.1), None);
-        assert_eq!(UnitInterval::<f32>::new(1.1), None);
-    }
-
-    #[test]
-    fn f64_constructor_accepts_unit_interval() {
-        assert_eq!(UnitInterval::<f64>::new(0.0).map(|u| u.get()), Some(0.0));
-        assert_eq!(UnitInterval::<f64>::new(0.5).map(|u| u.get()), Some(0.5));
-        assert_eq!(UnitInterval::<f64>::new(1.0).map(|u| u.get()), Some(1.0));
-        assert_eq!(UnitInterval::<f64>::new(-0.1), None);
-        assert_eq!(UnitInterval::<f64>::new(1.1), None);
-    }
-
-    #[test]
-    fn constructors_reject_nan() {
-        assert_eq!(UnitInterval::<f32>::new(f32::NAN), None);
-        assert_eq!(UnitInterval::<f64>::new(f64::NAN), None);
-    }
 
     #[test]
     #[should_panic(expected = "UnitInterval invariant violated")]
@@ -1198,215 +1172,9 @@ mod tests {
         UnitInterval::<f32>::from_inner(1.1);
     }
 
-    #[test]
-    fn saturating_clamps_for_both_float_widths() {
-        assert_eq!(UnitInterval::<f32>::saturating(-0.1).get(), 0.0);
-        assert_eq!(UnitInterval::<f32>::saturating(1.1).get(), 1.0);
-        assert_eq!(UnitInterval::<f32>::saturating(f32::NAN).get(), 0.0);
-        assert_eq!(UnitInterval::<f64>::saturating(-0.1).get(), 0.0);
-        assert_eq!(UnitInterval::<f64>::saturating(1.1).get(), 1.0);
-        assert_eq!(UnitInterval::<f64>::saturating(f64::NAN).get(), 0.0);
-    }
-
-    #[test]
-    fn constants_and_basic_helpers_work() {
-        assert_eq!(UnitInterval::<f32>::default(), UnitInterval::<f32>::ZERO);
-        assert_eq!(UnitInterval::<f32>::ZERO.get(), 0.0);
-        assert_eq!(UnitInterval::<f32>::HALF.get(), 0.5);
-        assert_eq!(UnitInterval::<f32>::ONE.get(), 1.0);
-        assert!(UnitInterval::<f32>::contains(0.5));
-        assert!(!UnitInterval::<f32>::contains(1.5));
-        assert!(UnitInterval::<f32>::ZERO.is_zero());
-        assert!(UnitInterval::<f32>::ONE.is_one());
-        assert_eq!(UnitInterval::new(0.25).unwrap().complement().get(), 0.75);
-    }
-
-    #[test]
-    fn standard_conversions_are_available() {
-        let from_result = UnitInterval::<f32>::try_from(0.5).unwrap();
-        let as_f64_interval = UnitInterval::<f64>::from(from_result);
-        let as_f32_interval = UnitInterval::<f32>::from(as_f64_interval);
-
-        assert_eq!(from_result.get(), 0.5);
-        assert_eq!(
-            UnitInterval::<f32>::try_from(1.5).unwrap_err().to_string(),
-            "value is outside the unit interval"
-        );
-        assert_eq!(as_f64_interval.get(), 0.5);
-        assert_eq!(as_f32_interval.get(), 0.5);
-    }
-
-    #[test]
-    fn comparison_helpers_preserve_unit_interval() {
-        let low = UnitInterval::new(0.25).unwrap();
-        let high = UnitInterval::new(0.75).unwrap();
-
-        assert_eq!(low.min(high), low);
-        assert_eq!(low.max(high), high);
-        assert_eq!(low.midpoint(high).get(), 0.5);
-        assert_eq!(low.distance_to(high).get(), 0.5);
-    }
-
-    #[test]
-    fn checked_arithmetic_rejects_out_of_range_results() {
-        let low = UnitInterval::new(0.25).unwrap();
-        let high = UnitInterval::new(0.75).unwrap();
-
-        assert_eq!(low.checked_add(low).map(|u| u.get()), Some(0.5));
-        assert_eq!(high.checked_add(high), None);
-        assert_eq!(high.checked_sub(low).map(|u| u.get()), Some(0.5));
-        assert_eq!(low.checked_sub(high), None);
-        assert_eq!(low.checked_div(high).map(|u| u.get()), Some(1.0 / 3.0));
-        assert_eq!(high.checked_div(low), None);
-        assert_eq!(low.checked_scale(2.0).map(|u| u.get()), Some(0.5));
-        assert_eq!(high.checked_scale(2.0), None);
-    }
-
-    #[cfg(feature = "unsafe")]
-    #[test]
-    fn unsafe_feature_exposes_unchecked_construction_and_arithmetic() {
-        let low = UnitInterval::new(0.25).unwrap();
-        let high = UnitInterval::new(0.75).unwrap();
-
-        // SAFETY: Every operation result below stays inside [0, 1].
-        unsafe {
-            assert_eq!(UnitInterval::new_unchecked(0.5).get(), 0.5);
-            assert_eq!(low.add_unchecked(low).get(), 0.5);
-            assert_eq!(high.sub_unchecked(low).get(), 0.5);
-            assert_eq!(low.div_unchecked(high).get(), 1.0 / 3.0);
-            assert_eq!(low.scale_unchecked(2.0).get(), 0.5);
-        }
-    }
-
-    #[test]
-    fn saturating_arithmetic_clamps_out_of_range_results() {
-        let low = UnitInterval::new(0.25).unwrap();
-        let high = UnitInterval::new(0.75).unwrap();
-
-        assert_eq!(high.saturating_add(high).get(), 1.0);
-        assert_eq!(low.saturating_sub(high).get(), 0.0);
-        assert_eq!(high.saturating_div(low).get(), 1.0);
-        assert_eq!(low.saturating_scale(-1.0).get(), 0.0);
-        assert_eq!(high.saturating_scale(2.0).get(), 1.0);
-    }
-
-    #[test]
-    fn multiplication_and_lerp_are_convenient() {
-        let low = UnitInterval::new(0.25).unwrap();
-        let high = UnitInterval::new(0.75).unwrap();
-
-        assert_eq!((low * high).get(), 0.1875);
-        assert_eq!(UnitInterval::<f32>::HALF.lerp(10.0, 20.0), 15.0);
-    }
-
-    #[test]
-    fn unconstrained_arithmetic_returns_backing_float() {
-        let low = UnitInterval::<f32>::new(0.25).unwrap();
-        let high = UnitInterval::<f32>::new(0.75).unwrap();
-
-        let sum: f32 = low + high;
-        let difference: f32 = low - high;
-        let product: UnitInterval<f32> = low * high;
-        let scaled: f32 = low * 4.0;
-        let reverse_scaled: f32 = 4.0 * low;
-        let quotient: f32 = high / low;
-        let remainder: f32 = high % low;
-        let negated: f32 = -low;
-
-        assert_eq!(sum, 1.0);
-        assert_eq!(difference, -0.5);
-        assert_eq!(product.get(), 0.1875);
-        assert_eq!(scaled, 1.0);
-        assert_eq!(reverse_scaled, 1.0);
-        assert_eq!(quotient, 3.0);
-        assert_eq!(remainder, 0.0);
-        assert_eq!(negated, -0.25);
-    }
-
-    #[test]
-    fn comparisons_work_against_backing_float() {
-        let half = UnitInterval::<f32>::HALF;
-
-        assert_eq!(half, 0.5);
-        assert_eq!(0.5, half);
-        assert!(half < 0.75);
-        assert!(0.25 < half);
-        assert!(half >= 0.5);
-        assert!(0.5 <= half);
-    }
-
-    #[test]
-    fn math_methods_return_unit_interval_when_result_is_constrained() {
-        let half = UnitInterval::<f64>::HALF;
-
-        let floor: UnitInterval<f64> = half.floor();
-        let ceil: UnitInterval<f64> = half.ceil();
-        let round: UnitInterval<f64> = half.round();
-        let trunc: UnitInterval<f64> = half.trunc();
-        let fract: UnitInterval<f64> = half.fract();
-        let abs: UnitInterval<f64> = half.abs();
-        let sqrt: UnitInterval<f64> = half.sqrt();
-        let cbrt: UnitInterval<f64> = half.cbrt();
-        let atan: UnitInterval<f64> = half.atan();
-        let tanh: UnitInterval<f64> = half.tanh();
-        let asinh: UnitInterval<f64> = half.asinh();
-
-        assert_eq!(floor.get(), 0.5_f64.floor());
-        assert_eq!(ceil.get(), 0.5_f64.ceil());
-        assert_eq!(round.get(), 0.5_f64.round());
-        assert_eq!(trunc.get(), 0.5_f64.trunc());
-        assert_eq!(fract.get(), 0.5_f64.fract());
-        assert_eq!(abs.get(), 0.5_f64.abs());
-        assert_eq!(sqrt.get(), 0.5_f64.sqrt());
-        assert_eq!(cbrt.get(), 0.5_f64.cbrt());
-        assert_eq!(atan.get(), 0.5_f64.atan());
-        assert_eq!(tanh.get(), 0.5_f64.tanh());
-        assert_eq!(asinh.get(), 0.5_f64.asinh());
-    }
-
-    #[test]
-    fn unconstrained_math_methods_return_backing_float() {
-        let half = UnitInterval::<f64>::HALF;
-
-        let pow: f64 = half.powi(2);
-        let sine: f64 = half.sin();
-        let hypot: f64 = half.hypot(0.5);
-        let (sin, cos): (f64, f64) = half.sin_cos();
-
-        assert_eq!(pow, 0.25);
-        assert_eq!(sine, 0.5_f64.sin());
-        assert_eq!(hypot, 0.5_f64.hypot(0.5));
-        assert_eq!((sin, cos), 0.5_f64.sin_cos());
-    }
-
-    #[cfg(feature = "serde")]
-    #[test]
-    fn serde_serializes_as_inner_value_and_deserializes_through_checked_constructor() {
-        let value = UnitInterval::<f32>::new(0.25).unwrap();
-
-        assert_eq!(serde_json::to_string(&value).unwrap(), "0.25");
-        assert_eq!(
-            serde_json::from_str::<UnitInterval<f32>>("0.25").unwrap(),
-            value
-        );
-        assert!(serde_json::from_str::<UnitInterval<f32>>("-0.25").is_err());
-        assert!(serde_json::from_str::<UnitInterval<f32>>("1.25").is_err());
-    }
-
     #[cfg(feature = "rkyv")]
     #[test]
-    fn rkyv_archives_inner_value_and_deserializes_through_checked_constructor() {
-        let value = UnitInterval::<f32>::new(0.25).unwrap();
-
-        let bytes = rkyv::to_bytes::<rkyv::rancor::Error>(&value).unwrap();
-        let archived =
-            rkyv::access::<rkyv::Archived<UnitInterval<f32>>, rkyv::rancor::Error>(&bytes).unwrap();
-        let round_tripped =
-            rkyv::deserialize::<UnitInterval<f32>, rkyv::rancor::Error>(archived).unwrap();
-
-        assert_eq!(archived.0.to_native(), 0.25);
-        assert_eq!(round_tripped, value);
-
+    fn rkyv_deserialization_rejects_invalid_archived_inner_value() {
         let invalid = super::ArchivedUnitInterval(rkyv::Archived::<f32>::from_native(1.25));
 
         assert!(rkyv::deserialize::<UnitInterval<f32>, rkyv::rancor::Error>(&invalid).is_err());

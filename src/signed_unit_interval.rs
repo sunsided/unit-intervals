@@ -642,38 +642,7 @@ macro_rules! impl_signed_unit_interval_float {
             }
         }
 
-        #[cfg(any(test, feature = "std"))]
         impl SignedUnitInterval<$float> {
-            /// Returns the largest integer less than or equal to this value.
-            #[inline]
-            pub fn floor(self) -> Self {
-                Self::from_inner(self.0.floor())
-            }
-
-            /// Returns the smallest integer greater than or equal to this value.
-            #[inline]
-            pub fn ceil(self) -> Self {
-                Self::from_inner(self.0.ceil())
-            }
-
-            /// Returns the nearest integer to this value, rounding halfway cases away from zero.
-            #[inline]
-            pub fn round(self) -> Self {
-                Self::from_inner(self.0.round())
-            }
-
-            /// Returns the integer part of this value.
-            #[inline]
-            pub fn trunc(self) -> Self {
-                Self::from_inner(self.0.trunc())
-            }
-
-            /// Returns the fractional part of this value.
-            #[inline]
-            pub fn fract(self) -> Self {
-                Self::from_inner(self.0.fract())
-            }
-
             /// Returns the absolute value.
             #[inline]
             pub fn abs(self) -> UnitInterval<$float> {
@@ -726,6 +695,39 @@ macro_rules! impl_signed_unit_interval_float {
             #[inline]
             pub fn recip(self) -> $float {
                 self.0.recip()
+            }
+        }
+
+        #[cfg(any(test, feature = "std"))]
+        impl SignedUnitInterval<$float> {
+            /// Returns the largest integer less than or equal to this value.
+            #[inline]
+            pub fn floor(self) -> Self {
+                Self::from_inner(self.0.floor())
+            }
+
+            /// Returns the smallest integer greater than or equal to this value.
+            #[inline]
+            pub fn ceil(self) -> Self {
+                Self::from_inner(self.0.ceil())
+            }
+
+            /// Returns the nearest integer to this value, rounding halfway cases away from zero.
+            #[inline]
+            pub fn round(self) -> Self {
+                Self::from_inner(self.0.round())
+            }
+
+            /// Returns the integer part of this value.
+            #[inline]
+            pub fn trunc(self) -> Self {
+                Self::from_inner(self.0.trunc())
+            }
+
+            /// Returns the fractional part of this value.
+            #[inline]
+            pub fn fract(self) -> Self {
+                Self::from_inner(self.0.fract())
             }
 
             /// Raises this value to an integer power.
@@ -963,29 +965,6 @@ impl<T: UnitIntervalFloat> Mul<SignedUnitInterval<T>> for UnitInterval<T> {
 #[cfg(test)]
 mod tests {
     use super::SignedUnitInterval;
-    use crate::UnitInterval;
-
-    #[test]
-    fn constructors_accept_signed_unit_interval() {
-        let default_width: SignedUnitInterval = SignedUnitInterval::new(-0.5).unwrap();
-
-        assert_eq!(default_width.get(), -0.5);
-        assert_eq!(
-            SignedUnitInterval::<f32>::new(-1.0).map(|u| u.get()),
-            Some(-1.0)
-        );
-        assert_eq!(
-            SignedUnitInterval::<f32>::new(0.0).map(|u| u.get()),
-            Some(0.0)
-        );
-        assert_eq!(
-            SignedUnitInterval::<f32>::new(1.0).map(|u| u.get()),
-            Some(1.0)
-        );
-        assert_eq!(SignedUnitInterval::<f32>::new(-1.1), None);
-        assert_eq!(SignedUnitInterval::<f32>::new(1.1), None);
-        assert_eq!(SignedUnitInterval::<f32>::new(f32::NAN), None);
-    }
 
     #[test]
     #[should_panic(expected = "SignedUnitInterval invariant violated")]
@@ -993,134 +972,9 @@ mod tests {
         SignedUnitInterval::<f32>::from_inner(1.1);
     }
 
-    #[test]
-    fn constants_conversions_and_helpers_work() {
-        let unit = UnitInterval::new(0.25).unwrap();
-        let signed = SignedUnitInterval::from(unit);
-        let back_to_unit = UnitInterval::try_from(signed).unwrap();
-        let negative = SignedUnitInterval::new(-0.25).unwrap();
-
-        assert_eq!(
-            SignedUnitInterval::<f32>::default(),
-            SignedUnitInterval::ZERO
-        );
-        assert!(SignedUnitInterval::<f32>::NEG_ONE.is_neg_one());
-        assert!(SignedUnitInterval::<f32>::ZERO.is_zero());
-        assert!(SignedUnitInterval::<f32>::ONE.is_one());
-        assert_eq!(SignedUnitInterval::<f32>::saturating(-1.25).get(), -1.0);
-        assert_eq!(SignedUnitInterval::<f32>::saturating(1.25).get(), 1.0);
-        assert_eq!(SignedUnitInterval::<f32>::saturating(f32::NAN).get(), 0.0);
-        assert_eq!(signed.get(), 0.25);
-        assert_eq!(back_to_unit, unit);
-        assert!(UnitInterval::try_from(negative).is_err());
-    }
-
-    #[test]
-    fn checked_and_saturating_arithmetic_accept_unit_interval() {
-        let negative = SignedUnitInterval::new(-0.75).unwrap();
-        let positive = SignedUnitInterval::new(0.75).unwrap();
-        let unit = UnitInterval::new(0.5).unwrap();
-
-        assert_eq!(negative.min(unit), negative);
-        assert_eq!(negative.max(unit).get(), 0.5);
-        assert_eq!(negative.midpoint(unit).get(), -0.125);
-        assert_eq!(negative.distance_to(unit), 1.25);
-        assert_eq!(negative.checked_add(unit).unwrap().get(), -0.25);
-        assert_eq!(positive.checked_add(unit), None);
-        assert_eq!(positive.saturating_add(unit).get(), 1.0);
-        assert_eq!(negative.checked_sub(unit), None);
-        assert_eq!(negative.saturating_sub(unit).get(), -1.0);
-        assert_eq!(positive.checked_div(unit), None);
-        assert_eq!(positive.saturating_div(unit).get(), 1.0);
-    }
-
-    #[cfg(feature = "unsafe")]
-    #[test]
-    fn unsafe_feature_exposes_unchecked_construction_and_arithmetic() {
-        let negative = SignedUnitInterval::new(-0.75).unwrap();
-        let positive = SignedUnitInterval::new(0.75).unwrap();
-        let unit = UnitInterval::new(0.5).unwrap();
-
-        // SAFETY: Every operation result below stays inside [-1, 1].
-        unsafe {
-            assert_eq!(SignedUnitInterval::new_unchecked(-0.5).get(), -0.5);
-            assert_eq!(negative.add_unchecked(unit).get(), -0.25);
-            assert_eq!(positive.sub_unchecked(unit).get(), 0.25);
-            assert_eq!(positive.div_unchecked(positive).get(), 1.0);
-            assert_eq!(positive.scale_unchecked(0.5).get(), 0.375);
-        }
-    }
-
-    #[test]
-    fn constrained_results_return_constrained_types() {
-        let negative = SignedUnitInterval::new(-0.5).unwrap();
-        let positive = SignedUnitInterval::new(0.5).unwrap();
-        let unit = UnitInterval::new(0.5).unwrap();
-
-        let negated: SignedUnitInterval = -negative;
-        let signed_product: SignedUnitInterval = negative * positive;
-        let mixed_product: SignedUnitInterval = negative * unit;
-        let reverse_mixed_product: SignedUnitInterval = unit * negative;
-        let absolute: UnitInterval = negative.abs();
-        let cosine: UnitInterval = negative.cos();
-        let (sine, sin_cos_cosine): (SignedUnitInterval, UnitInterval) = negative.sin_cos();
-
-        assert_eq!(negated.get(), 0.5);
-        assert_eq!(signed_product.get(), -0.25);
-        assert_eq!(mixed_product.get(), -0.25);
-        assert_eq!(reverse_mixed_product.get(), -0.25);
-        assert_eq!(absolute.get(), 0.5);
-        assert_eq!(cosine.get(), (-0.5_f32).cos());
-        assert_eq!(sine.get(), (-0.5_f32).sin());
-        assert_eq!(sin_cos_cosine.get(), (-0.5_f32).cos());
-    }
-
-    #[test]
-    fn unconstrained_operations_return_backing_float() {
-        let negative = SignedUnitInterval::<f32>::new(-0.75).unwrap();
-        let positive = SignedUnitInterval::<f32>::new(0.75).unwrap();
-        let unit = UnitInterval::new(0.5).unwrap();
-
-        let sum: f32 = positive + positive;
-        let mixed_sum: f32 = positive + unit;
-        let quotient: f32 = positive / negative;
-        let distance: f32 = negative.distance_to(positive);
-
-        assert_eq!(sum, 1.5);
-        assert_eq!(mixed_sum, 1.25);
-        assert_eq!(quotient, -1.0);
-        assert_eq!(distance, 1.5);
-    }
-
-    #[cfg(feature = "serde")]
-    #[test]
-    fn serde_serializes_as_inner_value_and_deserializes_through_checked_constructor() {
-        let value = SignedUnitInterval::<f32>::new(-0.25).unwrap();
-
-        assert_eq!(serde_json::to_string(&value).unwrap(), "-0.25");
-        assert_eq!(
-            serde_json::from_str::<SignedUnitInterval<f32>>("-0.25").unwrap(),
-            value
-        );
-        assert!(serde_json::from_str::<SignedUnitInterval<f32>>("-1.25").is_err());
-        assert!(serde_json::from_str::<SignedUnitInterval<f32>>("1.25").is_err());
-    }
-
     #[cfg(feature = "rkyv")]
     #[test]
-    fn rkyv_archives_inner_value_and_deserializes_through_checked_constructor() {
-        let value = SignedUnitInterval::<f32>::new(-0.25).unwrap();
-
-        let bytes = rkyv::to_bytes::<rkyv::rancor::Error>(&value).unwrap();
-        let archived =
-            rkyv::access::<rkyv::Archived<SignedUnitInterval<f32>>, rkyv::rancor::Error>(&bytes)
-                .unwrap();
-        let round_tripped =
-            rkyv::deserialize::<SignedUnitInterval<f32>, rkyv::rancor::Error>(archived).unwrap();
-
-        assert_eq!(archived.0.to_native(), -0.25);
-        assert_eq!(round_tripped, value);
-
+    fn rkyv_deserialization_rejects_invalid_archived_inner_value() {
         let invalid = super::ArchivedSignedUnitInterval(rkyv::Archived::<f32>::from_native(1.25));
 
         assert!(
