@@ -22,6 +22,8 @@ unsafe = []
 arbitrary = ["dep:arbitrary"]
 ## Enable `bytemuck` zeroing and checked byte-casting traits.
 bytemuck = ["dep:bytemuck"]
+## Enable `num-traits` conversion and bounds traits.
+num-traits = ["dep:num-traits"]
 ## Enable `serde` serialization and deserialization.
 serde = ["dep:serde"]
 ## Enable `rkyv` zero-copy serialization and checked deserialization.
@@ -32,6 +34,7 @@ rand_distr = ["dep:rand", "dep:rand_distr"]
 [dependencies]
 arbitrary = { version = "1.4", optional = true }
 bytemuck = { version = "1.25", default-features = false, optional = true }
+num-traits = { version = "0.2.19", default-features = false, optional = true }
 rand = { version = "0.10", default-features = false, optional = true }
 rand_distr = { version = "0.6", default-features = false, optional = true }
 rkyv = { version = "0.8.16", default-features = false, optional = true }
@@ -51,6 +54,11 @@ required-features = ["arbitrary"]
 name = "bytemuck"
 path = "tests/bytemuck.rs"
 required-features = ["bytemuck"]
+
+[[test]]
+name = "num_traits"
+path = "tests/num_traits.rs"
+required-features = ["num-traits"]
 
 [[test]]
 name = "rkyv"

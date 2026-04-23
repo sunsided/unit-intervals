@@ -50,6 +50,7 @@
 //!   [`bytemuck::CheckedBitPattern`] support. These wrappers do not implement
 //!   [`bytemuck::Pod`] because not every backing float bit pattern satisfies
 //!   their interval invariants.
+//! - `num-traits`: enables conversion and bounds traits from [`num_traits`].
 //! - `std`: enables APIs that require the Rust standard library. The crate is
 //!   otherwise `no_std`.
 //! - `rand_distr`: enables [`rand_distr`] distribution support for

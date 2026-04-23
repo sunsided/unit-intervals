@@ -74,6 +74,7 @@ assert_eq!(mix(10.0, 20.0, UnitInterval::HALF), 15.0);
 - `bytemuck` enables `Zeroable`, `NoUninit`, and `CheckedBitPattern` support.
   The interval wrappers intentionally do not implement `Pod`, because not every
   backing float bit pattern is valid for these constrained types.
+- `num-traits` enables conversion and bounds traits from `num-traits`.
 - `serde` enables transparent serialization and checked deserialization through
   the inner floating-point value.
 - `rkyv` enables zero-copy serialization and checked deserialization through the

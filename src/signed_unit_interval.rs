@@ -156,6 +156,196 @@ mod arbitrary {
     impl_arbitrary_signed_unit_interval!(f64, u64);
 }
 
+#[cfg(feature = "num-traits")]
+#[cfg_attr(docsrs, doc(cfg(feature = "num-traits")))]
+mod num_traits {
+    use super::*;
+    use ::num_traits::{AsPrimitive, Bounded, FromPrimitive, NumCast, ToBytes, ToPrimitive};
+
+    macro_rules! impl_num_traits_signed_unit_interval {
+        ($float:ty) => {
+            impl ToPrimitive for SignedUnitInterval<$float> {
+                #[inline]
+                fn to_isize(&self) -> Option<isize> {
+                    self.0.to_isize()
+                }
+
+                #[inline]
+                fn to_i8(&self) -> Option<i8> {
+                    self.0.to_i8()
+                }
+
+                #[inline]
+                fn to_i16(&self) -> Option<i16> {
+                    self.0.to_i16()
+                }
+
+                #[inline]
+                fn to_i32(&self) -> Option<i32> {
+                    self.0.to_i32()
+                }
+
+                #[inline]
+                fn to_i64(&self) -> Option<i64> {
+                    self.0.to_i64()
+                }
+
+                #[inline]
+                fn to_i128(&self) -> Option<i128> {
+                    self.0.to_i128()
+                }
+
+                #[inline]
+                fn to_usize(&self) -> Option<usize> {
+                    self.0.to_usize()
+                }
+
+                #[inline]
+                fn to_u8(&self) -> Option<u8> {
+                    self.0.to_u8()
+                }
+
+                #[inline]
+                fn to_u16(&self) -> Option<u16> {
+                    self.0.to_u16()
+                }
+
+                #[inline]
+                fn to_u32(&self) -> Option<u32> {
+                    self.0.to_u32()
+                }
+
+                #[inline]
+                fn to_u64(&self) -> Option<u64> {
+                    self.0.to_u64()
+                }
+
+                #[inline]
+                fn to_u128(&self) -> Option<u128> {
+                    self.0.to_u128()
+                }
+
+                #[inline]
+                fn to_f32(&self) -> Option<f32> {
+                    self.0.to_f32()
+                }
+
+                #[inline]
+                fn to_f64(&self) -> Option<f64> {
+                    self.0.to_f64()
+                }
+            }
+
+            impl FromPrimitive for SignedUnitInterval<$float> {
+                #[inline]
+                fn from_i64(n: i64) -> Option<Self> {
+                    <$float as FromPrimitive>::from_i64(n).and_then(Self::new)
+                }
+
+                #[inline]
+                fn from_u64(n: u64) -> Option<Self> {
+                    <$float as FromPrimitive>::from_u64(n).and_then(Self::new)
+                }
+
+                #[inline]
+                fn from_f32(n: f32) -> Option<Self> {
+                    <$float as FromPrimitive>::from_f32(n).and_then(Self::new)
+                }
+
+                #[inline]
+                fn from_f64(n: f64) -> Option<Self> {
+                    <$float as FromPrimitive>::from_f64(n).and_then(Self::new)
+                }
+            }
+
+            impl NumCast for SignedUnitInterval<$float> {
+                #[inline]
+                fn from<T: ToPrimitive>(n: T) -> Option<Self> {
+                    <$float as NumCast>::from(n).and_then(Self::new)
+                }
+            }
+
+            impl Bounded for SignedUnitInterval<$float> {
+                #[inline]
+                fn min_value() -> Self {
+                    Self::NEG_ONE
+                }
+
+                #[inline]
+                fn max_value() -> Self {
+                    Self::ONE
+                }
+            }
+
+            impl ToBytes for SignedUnitInterval<$float> {
+                type Bytes = <$float as ToBytes>::Bytes;
+
+                #[inline]
+                fn to_be_bytes(&self) -> Self::Bytes {
+                    self.0.to_be_bytes()
+                }
+
+                #[inline]
+                fn to_le_bytes(&self) -> Self::Bytes {
+                    self.0.to_le_bytes()
+                }
+
+                #[inline]
+                fn to_ne_bytes(&self) -> Self::Bytes {
+                    self.0.to_ne_bytes()
+                }
+            }
+        };
+    }
+
+    macro_rules! impl_as_primitive_signed_unit_interval {
+        ($float:ty => $($target:ty),+ $(,)?) => {
+            $(
+                impl AsPrimitive<$target> for SignedUnitInterval<$float> {
+                    #[inline]
+                    fn as_(self) -> $target {
+                        self.0 as $target
+                    }
+                }
+            )+
+        };
+    }
+
+    impl_num_traits_signed_unit_interval!(f32);
+    impl_num_traits_signed_unit_interval!(f64);
+
+    impl_as_primitive_signed_unit_interval!(f32 => f32, f64);
+    impl_as_primitive_signed_unit_interval!(f64 => f32, f64);
+
+    impl AsPrimitive<SignedUnitInterval<f32>> for SignedUnitInterval<f32> {
+        #[inline]
+        fn as_(self) -> SignedUnitInterval<f32> {
+            self
+        }
+    }
+
+    impl AsPrimitive<SignedUnitInterval<f64>> for SignedUnitInterval<f32> {
+        #[inline]
+        fn as_(self) -> SignedUnitInterval<f64> {
+            SignedUnitInterval::from_inner(self.0 as f64)
+        }
+    }
+
+    impl AsPrimitive<SignedUnitInterval<f32>> for SignedUnitInterval<f64> {
+        #[inline]
+        fn as_(self) -> SignedUnitInterval<f32> {
+            SignedUnitInterval::from_inner(self.0 as f32)
+        }
+    }
+
+    impl AsPrimitive<SignedUnitInterval<f64>> for SignedUnitInterval<f64> {
+        #[inline]
+        fn as_(self) -> SignedUnitInterval<f64> {
+            self
+        }
+    }
+}
+
 impl<T: UnitIntervalFloat> SignedUnitInterval<T> {
     /// The lower bound of the signed unit interval.
     pub const NEG_ONE: Self = Self(T::NEG_ONE);
