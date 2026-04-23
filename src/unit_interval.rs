@@ -62,6 +62,9 @@ pub trait UnitIntervalFloat:
     /// The additive identity, `0`.
     const ZERO: Self;
 
+    /// The lower bound of the signed unit interval, `-1`.
+    const NEG_ONE: Self;
+
     /// The multiplicative identity, `1`.
     const ONE: Self;
 
@@ -72,6 +75,11 @@ pub trait UnitIntervalFloat:
     ///
     /// Implementations treat `NaN` as zero.
     fn clamp_unit(self) -> Self;
+
+    /// Clamps a value into `[-1, 1]`.
+    ///
+    /// Implementations treat `NaN` as zero.
+    fn clamp_signed_unit(self) -> Self;
 }
 
 impl<T: UnitIntervalFloat> UnitInterval<T> {
@@ -498,6 +506,7 @@ macro_rules! impl_unit_interval_float {
 
         impl UnitIntervalFloat for $float {
             const ZERO: Self = 0.0;
+            const NEG_ONE: Self = -1.0;
             const ONE: Self = 1.0;
             const HALF: Self = 0.5;
 
@@ -507,6 +516,14 @@ macro_rules! impl_unit_interval_float {
                 }
 
                 self.clamp(Self::ZERO, Self::ONE)
+            }
+
+            fn clamp_signed_unit(self) -> Self {
+                if self.is_nan() {
+                    return Self::ZERO;
+                }
+
+                self.clamp(Self::NEG_ONE, Self::ONE)
             }
         }
 

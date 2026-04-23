@@ -1,4 +1,5 @@
-//! A small constrained float type for values in the closed unit interval `[0, 1]`.
+//! Small constrained float types for values in the closed intervals `[0, 1]`
+//! and `[-1, 1]`.
 //!
 //! # Examples
 //!
@@ -12,8 +13,11 @@
 //! assert_eq!(clamped, UnitInterval::ONE);
 //! ```
 
+mod signed_unit_interval;
 mod unit_interval;
 
+pub use signed_unit_interval::SignedUnitInterval;
+pub use signed_unit_interval::SignedUnitIntervalError;
 pub use unit_interval::UnitInterval;
 pub use unit_interval::UnitIntervalError;
 pub use unit_interval::UnitIntervalFloat;
