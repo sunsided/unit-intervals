@@ -53,17 +53,20 @@ tasks:
     cmds:
       - "{{.CARGO}} build"
 
-  test:
-    desc: Test the crate with default features
-    cmds:
-      - "{{.CARGO}} test"
-
   test:all-features:
     desc: Test the crate with all features
     aliases:
+      - test
       - test:all
     cmds:
       - "{{.CARGO}} test --all-features"
+
+  test:default-features:
+    desc: Test the crate with default features
+    aliases:
+      - test:default
+    cmds:
+      - "{{.CARGO}} test"
 
   test:no-features:
     desc: Test the crate without default features
