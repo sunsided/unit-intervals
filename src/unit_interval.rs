@@ -1,3 +1,4 @@
+use crate::UnitIntervalFloat;
 use core::{
     cmp::Ordering,
     error::Error,
@@ -49,39 +50,39 @@ impl fmt::Display for UnitIntervalError {
 
 impl Error for UnitIntervalError {}
 
-/// Floating-point support required by [`UnitInterval`].
-///
-/// This trait is sealed and implemented only for `f32` and `f64`.
-pub trait UnitIntervalFloat:
-    private::Sealed
-    + Copy
-    + PartialOrd
-    + Add<Output = Self>
-    + Sub<Output = Self>
-    + Mul<Output = Self>
-    + Div<Output = Self>
-{
-    /// The additive identity, `0`.
-    const ZERO: Self;
+#[cfg(feature = "serde")]
+mod serde {
+    use super::*;
+    use ::serde::{Deserialize, Deserializer, Serialize, Serializer, de};
 
-    /// The lower bound of the signed unit interval, `-1`.
-    const NEG_ONE: Self;
+    impl<T: Serialize> Serialize for UnitInterval<T> {
+        #[inline]
+        fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+            self.0.serialize(serializer)
+        }
+    }
 
-    /// The multiplicative identity, `1`.
-    const ONE: Self;
+    impl<'de, T> Deserialize<'de> for UnitInterval<T>
+    where
+        T: UnitIntervalFloat + Deserialize<'de>,
+    {
+        #[inline]
+        fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+            // Keep deserialization on the same invariant-preserving path as
+            // construction from a raw float. Serialization is intentionally
+            // transparent, so the data format only stores the inner value and
+            // cannot encode whether that value came from a previously checked
+            // `UnitInterval`. Treating decoded input as trusted wrapper state
+            // would let out-of-range values and `NaN` bypass the type's public
+            // contract. Decoding the backing value first and then routing it
+            // through `new` gives every serde format the same behavior as
+            // `TryFrom<T>`: valid values reconstruct the wrapper, and invalid
+            // values become ordinary deserialization errors.
+            let value = T::deserialize(deserializer)?;
 
-    /// The midpoint value, `0.5`.
-    const HALF: Self;
-
-    /// Clamps a value into `[0, 1]`.
-    ///
-    /// Implementations treat `NaN` as zero.
-    fn clamp_unit(self) -> Self;
-
-    /// Clamps a value into `[-1, 1]`.
-    ///
-    /// Implementations treat `NaN` as zero.
-    fn clamp_signed_unit(self) -> Self;
+            Self::new(value).ok_or_else(|| de::Error::custom(UnitIntervalError))
+        }
+    }
 }
 
 impl<T: UnitIntervalFloat> UnitInterval<T> {
@@ -612,7 +613,7 @@ impl<T> AsRef<T> for UnitInterval<T> {
 
 macro_rules! impl_unit_interval_float {
     ($float:ty) => {
-        impl private::Sealed for $float {}
+        impl crate::private::Sealed for $float {}
 
         impl UnitIntervalFloat for $float {
             const ZERO: Self = 0.0;
@@ -1126,10 +1127,6 @@ impl<T: UnitIntervalFloat> Mul for UnitInterval<T> {
     }
 }
 
-mod private {
-    pub trait Sealed {}
-}
-
 #[cfg(test)]
 mod tests {
     use super::UnitInterval;
@@ -1347,5 +1344,19 @@ mod tests {
         assert_eq!(sine, 0.5_f64.sin());
         assert_eq!(hypot, 0.5_f64.hypot(0.5));
         assert_eq!((sin, cos), 0.5_f64.sin_cos());
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn serde_serializes_as_inner_value_and_deserializes_through_checked_constructor() {
+        let value = UnitInterval::<f32>::new(0.25).unwrap();
+
+        assert_eq!(serde_json::to_string(&value).unwrap(), "0.25");
+        assert_eq!(
+            serde_json::from_str::<UnitInterval<f32>>("0.25").unwrap(),
+            value
+        );
+        assert!(serde_json::from_str::<UnitInterval<f32>>("-0.25").is_err());
+        assert!(serde_json::from_str::<UnitInterval<f32>>("1.25").is_err());
     }
 }

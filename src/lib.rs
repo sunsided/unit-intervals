@@ -46,6 +46,8 @@
 //!   Tests always enable these assertions.
 //! - `std`: enables APIs that require the Rust standard library. The crate is
 //!   otherwise `no_std`.
+//! - `serde`: enables transparent serialization and checked deserialization
+//!   through the inner floating-point value.
 //! - `unsafe`: allows unsafe code and enables unchecked constructors and
 //!   operations such as [`UnitInterval::new_unchecked`] and
 //!   [`SignedUnitInterval::new_unchecked`]. These APIs assume the caller has
@@ -62,8 +64,47 @@ extern crate std;
 mod signed_unit_interval;
 mod unit_interval;
 
+use core::ops::{Add, Div, Mul, Sub};
 pub use signed_unit_interval::SignedUnitInterval;
 pub use signed_unit_interval::SignedUnitIntervalError;
 pub use unit_interval::UnitInterval;
 pub use unit_interval::UnitIntervalError;
-pub use unit_interval::UnitIntervalFloat;
+
+mod private {
+    pub trait Sealed {}
+}
+
+/// Floating-point support required by [`UnitInterval`].
+///
+/// This trait is sealed and implemented only for `f32` and `f64`.
+pub trait UnitIntervalFloat:
+    private::Sealed
+    + Copy
+    + PartialOrd
+    + Add<Output = Self>
+    + Sub<Output = Self>
+    + Mul<Output = Self>
+    + Div<Output = Self>
+{
+    /// The additive identity, `0`.
+    const ZERO: Self;
+
+    /// The lower bound of the signed unit interval, `-1`.
+    const NEG_ONE: Self;
+
+    /// The multiplicative identity, `1`.
+    const ONE: Self;
+
+    /// The midpoint value, `0.5`.
+    const HALF: Self;
+
+    /// Clamps a value into `[0, 1]`.
+    ///
+    /// Implementations treat `NaN` as zero.
+    fn clamp_unit(self) -> Self;
+
+    /// Clamps a value into `[-1, 1]`.
+    ///
+    /// Implementations treat `NaN` as zero.
+    fn clamp_signed_unit(self) -> Self;
+}

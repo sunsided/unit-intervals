@@ -27,6 +27,41 @@ impl fmt::Display for SignedUnitIntervalError {
 
 impl Error for SignedUnitIntervalError {}
 
+#[cfg(feature = "serde")]
+mod serde {
+    use super::*;
+    use ::serde::{Deserialize, Deserializer, Serialize, Serializer, de};
+
+    impl<T: Serialize> Serialize for SignedUnitInterval<T> {
+        #[inline]
+        fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+            self.0.serialize(serializer)
+        }
+    }
+
+    impl<'de, T> Deserialize<'de> for SignedUnitInterval<T>
+    where
+        T: UnitIntervalFloat + Deserialize<'de>,
+    {
+        #[inline]
+        fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+            // Keep deserialization on the same invariant-preserving path as
+            // construction from a raw float. Serialization is intentionally
+            // transparent, so the data format only stores the inner value and
+            // cannot encode whether that value came from a previously checked
+            // `SignedUnitInterval`. Treating decoded input as trusted wrapper
+            // state would let out-of-range values and `NaN` bypass the type's
+            // public contract. Decoding the backing value first and then
+            // routing it through `new` gives every serde format the same
+            // behavior as `TryFrom<T>`: valid values reconstruct the wrapper,
+            // and invalid values become ordinary deserialization errors.
+            let value = T::deserialize(deserializer)?;
+
+            Self::new(value).ok_or_else(|| de::Error::custom(SignedUnitIntervalError))
+        }
+    }
+}
+
 impl<T: UnitIntervalFloat> SignedUnitInterval<T> {
     /// The lower bound of the signed unit interval.
     pub const NEG_ONE: Self = Self(T::NEG_ONE);
@@ -1022,5 +1057,19 @@ mod tests {
         assert_eq!(mixed_sum, 1.25);
         assert_eq!(quotient, -1.0);
         assert_eq!(distance, 1.5);
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn serde_serializes_as_inner_value_and_deserializes_through_checked_constructor() {
+        let value = SignedUnitInterval::<f32>::new(-0.25).unwrap();
+
+        assert_eq!(serde_json::to_string(&value).unwrap(), "-0.25");
+        assert_eq!(
+            serde_json::from_str::<SignedUnitInterval<f32>>("-0.25").unwrap(),
+            value
+        );
+        assert!(serde_json::from_str::<SignedUnitInterval<f32>>("-1.25").is_err());
+        assert!(serde_json::from_str::<SignedUnitInterval<f32>>("1.25").is_err());
     }
 }

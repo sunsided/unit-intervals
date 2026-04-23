@@ -12,8 +12,14 @@ assertions = []
 std = []
 ## Enable unsafe constructors and operations that skip invariant checks.
 unsafe = []
+## Enable `serde` serialization and deserialization.
+serde = ["dep:serde"]
 
 [dependencies]
+serde = { version = "1.0", default-features = false, optional = true }
+
+[dev-dependencies]
+serde_json = "1.0"
 
 [package.metadata.docs.rs]
-features = ["assertions", "unsafe"]
+features = ["assertions", "serde", "unsafe"]
