@@ -2,6 +2,9 @@
 name = "unit-interval"
 version = "0.1.0"
 edition = "2024"
+authors = ["Markus Mayer <widemeadows@gmail.com>"]
+license = "EUPL-1.2"
+repository = "https://github.com/sunsided/unit-interval"
 
 [features]
 ## No optional behavior is enabled by default.
