@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/sunsided/unit-intervals/actions/workflows/ci.yml/badge.svg)](https://github.com/sunsided/unit-intervals/actions/workflows/ci.yml)
 [![license: EUPL-1.2](https://img.shields.io/badge/license-EUPL--1.2-blue.svg)](https://github.com/sunsided/unit-interval/blob/main/Cargo.toml)
-[![unsafe optional](https://img.shields.io/badge/unsafe-forbidden-success.svg)](https://github.com/rust-secure-code/safety-dance/)
+[![unsafe optional](https://img.shields.io/badge/unsafe-optional-success.svg)](https://github.com/rust-secure-code/safety-dance/)
 [![no_std compatible](https://img.shields.io/badge/no__std-compatible-informational.svg)](https://docs.rust-embedded.org/book/intro/no-std.html)
 
 Small constrained float types for values in the closed intervals `[0, 1]` and
