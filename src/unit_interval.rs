@@ -182,7 +182,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
         Self(v)
     }
 
-    #[cfg(feature = "assertions")]
+    #[cfg(any(test, feature = "assertions"))]
     #[inline(always)]
     fn assert_contains(v: T) {
         assert!(
@@ -191,7 +191,7 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
         );
     }
 
-    #[cfg(not(feature = "assertions"))]
+    #[cfg(not(any(test, feature = "assertions")))]
     #[inline(always)]
     fn assert_contains(_v: T) {}
 
@@ -1095,6 +1095,12 @@ mod tests {
     fn constructors_reject_nan() {
         assert_eq!(UnitInterval::<f32>::new(f32::NAN), None);
         assert_eq!(UnitInterval::<f64>::new(f64::NAN), None);
+    }
+
+    #[test]
+    #[should_panic(expected = "UnitInterval invariant violated")]
+    fn test_configuration_enables_internal_assertions() {
+        UnitInterval::<f32>::from_inner(1.1);
     }
 
     #[test]
