@@ -4,8 +4,16 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
+## No optional behavior is enabled by default.
 default = []
+## Enable internal invariant assertions in non-test builds.
 assertions = []
+## Enable APIs that require the Rust standard library.
 std = []
+## Enable unsafe constructors and operations that skip invariant checks.
+unsafe = []
 
 [dependencies]
+
+[package.metadata.docs.rs]
+features = ["assertions", "unsafe"]

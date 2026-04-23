@@ -52,6 +52,18 @@ impl<T: UnitIntervalFloat> SignedUnitInterval<T> {
         }
     }
 
+    /// Creates a value without checking that `v` is inside `[-1, 1]`.
+    ///
+    /// # Safety
+    ///
+    /// The caller must guarantee that `v` is greater than or equal to negative
+    /// one, less than or equal to one, and not `NaN`.
+    #[cfg(feature = "unsafe")]
+    #[inline]
+    pub const unsafe fn new_unchecked(v: T) -> Self {
+        Self(v)
+    }
+
     /// Returns whether `v` is inside `[-1, 1]`.
     ///
     /// `NaN` is not contained in the interval.
@@ -165,6 +177,19 @@ impl<T: UnitIntervalFloat> SignedUnitInterval<T> {
         Self::new(self.0 + rhs.into().0)
     }
 
+    /// Adds two values without checking that the result is inside `[-1, 1]`.
+    ///
+    /// # Safety
+    ///
+    /// The caller must guarantee that `self + rhs` is inside `[-1, 1]` and not
+    /// `NaN`.
+    #[cfg(feature = "unsafe")]
+    #[inline]
+    pub unsafe fn add_unchecked<R: Into<Self>>(self, rhs: R) -> Self {
+        // SAFETY: Guaranteed by the caller.
+        unsafe { Self::new_unchecked(self.0 + rhs.into().0) }
+    }
+
     /// Adds two values and clamps the result into `[-1, 1]`.
     #[inline]
     pub fn saturating_add<R: Into<Self>>(self, rhs: R) -> Self {
@@ -175,6 +200,19 @@ impl<T: UnitIntervalFloat> SignedUnitInterval<T> {
     #[inline]
     pub fn checked_sub<R: Into<Self>>(self, rhs: R) -> Option<Self> {
         Self::new(self.0 - rhs.into().0)
+    }
+
+    /// Subtracts `rhs` without checking that the result is inside `[-1, 1]`.
+    ///
+    /// # Safety
+    ///
+    /// The caller must guarantee that `self - rhs` is inside `[-1, 1]` and not
+    /// `NaN`.
+    #[cfg(feature = "unsafe")]
+    #[inline]
+    pub unsafe fn sub_unchecked<R: Into<Self>>(self, rhs: R) -> Self {
+        // SAFETY: Guaranteed by the caller.
+        unsafe { Self::new_unchecked(self.0 - rhs.into().0) }
     }
 
     /// Subtracts `rhs` and clamps the result into `[-1, 1]`.
@@ -189,6 +227,19 @@ impl<T: UnitIntervalFloat> SignedUnitInterval<T> {
         Self::new(self.0 / rhs.into().0)
     }
 
+    /// Divides by `rhs` without checking that the result is inside `[-1, 1]`.
+    ///
+    /// # Safety
+    ///
+    /// The caller must guarantee that `self / rhs` is inside `[-1, 1]` and not
+    /// `NaN`.
+    #[cfg(feature = "unsafe")]
+    #[inline]
+    pub unsafe fn div_unchecked<R: Into<Self>>(self, rhs: R) -> Self {
+        // SAFETY: Guaranteed by the caller.
+        unsafe { Self::new_unchecked(self.0 / rhs.into().0) }
+    }
+
     /// Divides by `rhs` and clamps the result into `[-1, 1]`.
     #[inline]
     pub fn saturating_div<R: Into<Self>>(self, rhs: R) -> Self {
@@ -199,6 +250,20 @@ impl<T: UnitIntervalFloat> SignedUnitInterval<T> {
     #[inline]
     pub fn checked_scale(self, factor: T) -> Option<Self> {
         Self::new(self.0 * factor)
+    }
+
+    /// Multiplies by an arbitrary float without checking that the result is
+    /// inside `[-1, 1]`.
+    ///
+    /// # Safety
+    ///
+    /// The caller must guarantee that `self * factor` is inside `[-1, 1]` and
+    /// not `NaN`.
+    #[cfg(feature = "unsafe")]
+    #[inline]
+    pub unsafe fn scale_unchecked(self, factor: T) -> Self {
+        // SAFETY: Guaranteed by the caller.
+        unsafe { Self::new_unchecked(self.0 * factor) }
     }
 
     /// Multiplies by an arbitrary float and clamps the result into `[-1, 1]`.
@@ -899,6 +964,23 @@ mod tests {
         assert_eq!(negative.saturating_sub(unit).get(), -1.0);
         assert_eq!(positive.checked_div(unit), None);
         assert_eq!(positive.saturating_div(unit).get(), 1.0);
+    }
+
+    #[cfg(feature = "unsafe")]
+    #[test]
+    fn unsafe_feature_exposes_unchecked_construction_and_arithmetic() {
+        let negative = SignedUnitInterval::new(-0.75).unwrap();
+        let positive = SignedUnitInterval::new(0.75).unwrap();
+        let unit = UnitInterval::new(0.5).unwrap();
+
+        // SAFETY: Every operation result below stays inside [-1, 1].
+        unsafe {
+            assert_eq!(SignedUnitInterval::new_unchecked(-0.5).get(), -0.5);
+            assert_eq!(negative.add_unchecked(unit).get(), -0.25);
+            assert_eq!(positive.sub_unchecked(unit).get(), 0.25);
+            assert_eq!(positive.div_unchecked(positive).get(), 1.0);
+            assert_eq!(positive.scale_unchecked(0.5).get(), 0.375);
+        }
     }
 
     #[test]

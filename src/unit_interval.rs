@@ -140,6 +140,18 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
         }
     }
 
+    /// Creates a value without checking that `v` is inside `[0, 1]`.
+    ///
+    /// # Safety
+    ///
+    /// The caller must guarantee that `v` is greater than or equal to zero,
+    /// less than or equal to one, and not `NaN`.
+    #[cfg(feature = "unsafe")]
+    #[inline(always)]
+    pub const unsafe fn new_unchecked(v: T) -> Self {
+        Self(v)
+    }
+
     /// Returns whether `v` is inside `[0, 1]`.
     ///
     /// `NaN` is not contained in the interval.
@@ -364,6 +376,19 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
         Self::new(self.0 + rhs.0)
     }
 
+    /// Adds two values without checking that the result is inside `[0, 1]`.
+    ///
+    /// # Safety
+    ///
+    /// The caller must guarantee that `self + rhs` is inside `[0, 1]` and not
+    /// `NaN`.
+    #[cfg(feature = "unsafe")]
+    #[inline(always)]
+    pub unsafe fn add_unchecked(self, rhs: Self) -> Self {
+        // SAFETY: Guaranteed by the caller.
+        unsafe { Self::new_unchecked(self.0 + rhs.0) }
+    }
+
     /// Adds two values and clamps the result into `[0, 1]`.
     ///
     /// # Examples
@@ -396,6 +421,19 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     #[inline(always)]
     pub fn checked_sub(self, rhs: Self) -> Option<Self> {
         Self::new(self.0 - rhs.0)
+    }
+
+    /// Subtracts `rhs` without checking that the result is inside `[0, 1]`.
+    ///
+    /// # Safety
+    ///
+    /// The caller must guarantee that `self - rhs` is inside `[0, 1]` and not
+    /// `NaN`.
+    #[cfg(feature = "unsafe")]
+    #[inline(always)]
+    pub unsafe fn sub_unchecked(self, rhs: Self) -> Self {
+        // SAFETY: Guaranteed by the caller.
+        unsafe { Self::new_unchecked(self.0 - rhs.0) }
     }
 
     /// Subtracts `rhs` and clamps the result into `[0, 1]`.
@@ -435,6 +473,19 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     #[inline(always)]
     pub fn checked_div(self, rhs: Self) -> Option<Self> {
         Self::new(self.0 / rhs.0)
+    }
+
+    /// Divides by `rhs` without checking that the result is inside `[0, 1]`.
+    ///
+    /// # Safety
+    ///
+    /// The caller must guarantee that `self / rhs` is inside `[0, 1]` and not
+    /// `NaN`.
+    #[cfg(feature = "unsafe")]
+    #[inline(always)]
+    pub unsafe fn div_unchecked(self, rhs: Self) -> Self {
+        // SAFETY: Guaranteed by the caller.
+        unsafe { Self::new_unchecked(self.0 / rhs.0) }
     }
 
     /// Divides by `rhs` and clamps the result into `[0, 1]`.
@@ -477,6 +528,20 @@ impl<T: UnitIntervalFloat> UnitInterval<T> {
     #[inline(always)]
     pub fn checked_scale(self, factor: T) -> Option<Self> {
         Self::new(self.0 * factor)
+    }
+
+    /// Multiplies by an arbitrary float without checking that the result is
+    /// inside `[0, 1]`.
+    ///
+    /// # Safety
+    ///
+    /// The caller must guarantee that `self * factor` is inside `[0, 1]` and
+    /// not `NaN`.
+    #[cfg(feature = "unsafe")]
+    #[inline(always)]
+    pub unsafe fn scale_unchecked(self, factor: T) -> Self {
+        // SAFETY: Guaranteed by the caller.
+        unsafe { Self::new_unchecked(self.0 * factor) }
     }
 
     /// Multiplies by an arbitrary float and clamps the result into `[0, 1]`.
@@ -1165,6 +1230,22 @@ mod tests {
         assert_eq!(high.checked_div(low), None);
         assert_eq!(low.checked_scale(2.0).map(|u| u.get()), Some(0.5));
         assert_eq!(high.checked_scale(2.0), None);
+    }
+
+    #[cfg(feature = "unsafe")]
+    #[test]
+    fn unsafe_feature_exposes_unchecked_construction_and_arithmetic() {
+        let low = UnitInterval::new(0.25).unwrap();
+        let high = UnitInterval::new(0.75).unwrap();
+
+        // SAFETY: Every operation result below stays inside [0, 1].
+        unsafe {
+            assert_eq!(UnitInterval::new_unchecked(0.5).get(), 0.5);
+            assert_eq!(low.add_unchecked(low).get(), 0.5);
+            assert_eq!(high.sub_unchecked(low).get(), 0.5);
+            assert_eq!(low.div_unchecked(high).get(), 1.0 / 3.0);
+            assert_eq!(low.scale_unchecked(2.0).get(), 0.5);
+        }
     }
 
     #[test]
