@@ -46,6 +46,8 @@
 //!   Tests always enable these assertions.
 //! - `std`: enables APIs that require the Rust standard library. The crate is
 //!   otherwise `no_std`.
+//! - `rkyv`: enables zero-copy serialization and checked deserialization
+//!   through the inner floating-point value.
 //! - `serde`: enables transparent serialization and checked deserialization
 //!   through the inner floating-point value.
 //! - `unsafe`: allows unsafe code and enables unchecked constructors and

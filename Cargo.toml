@@ -14,12 +14,16 @@ std = []
 unsafe = []
 ## Enable `serde` serialization and deserialization.
 serde = ["dep:serde"]
+## Enable `rkyv` zero-copy serialization and checked deserialization.
+rkyv = ["dep:rkyv"]
 
 [dependencies]
+rkyv = { version = "0.8.16", default-features = false, optional = true }
 serde = { version = "1.0", default-features = false, optional = true }
 
 [dev-dependencies]
+rkyv = { version = "0.8.16", features = ["alloc"] }
 serde_json = "1.0"
 
 [package.metadata.docs.rs]
-features = ["assertions", "serde", "unsafe"]
+features = ["assertions", "rkyv", "serde", "unsafe"]

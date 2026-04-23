@@ -24,6 +24,11 @@ use core::{
 /// assert_eq!(progress.get(), 0.75);
 /// assert_eq!(UnitInterval::new(1.25), None);
 /// ```
+#[cfg_attr(
+    feature = "rkyv",
+    derive(::rkyv::Archive, ::rkyv::Serialize),
+    rkyv(crate = ::rkyv)
+)]
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
 pub struct UnitInterval<T = f32>(T);
 
@@ -49,6 +54,34 @@ impl fmt::Display for UnitIntervalError {
 }
 
 impl Error for UnitIntervalError {}
+
+#[cfg(feature = "rkyv")]
+mod rkyv {
+    use super::*;
+    use ::rkyv::{
+        Archive, Deserialize,
+        rancor::{Fallible, Source, fail},
+    };
+
+    impl<T, D> Deserialize<UnitInterval<T>, D> for ArchivedUnitInterval<T>
+    where
+        T: Archive + UnitIntervalFloat,
+        T::Archived: Deserialize<T, D>,
+        D: Fallible + ?Sized,
+        D::Error: Source,
+    {
+        #[inline]
+        fn deserialize(&self, deserializer: &mut D) -> Result<UnitInterval<T>, D::Error> {
+            let value = self.0.deserialize(deserializer)?;
+
+            if let Some(value) = UnitInterval::new(value) {
+                Ok(value)
+            } else {
+                fail!(UnitIntervalError);
+            }
+        }
+    }
+}
 
 #[cfg(feature = "serde")]
 mod serde {
@@ -1358,5 +1391,24 @@ mod tests {
         );
         assert!(serde_json::from_str::<UnitInterval<f32>>("-0.25").is_err());
         assert!(serde_json::from_str::<UnitInterval<f32>>("1.25").is_err());
+    }
+
+    #[cfg(feature = "rkyv")]
+    #[test]
+    fn rkyv_archives_inner_value_and_deserializes_through_checked_constructor() {
+        let value = UnitInterval::<f32>::new(0.25).unwrap();
+
+        let bytes = rkyv::to_bytes::<rkyv::rancor::Error>(&value).unwrap();
+        let archived =
+            rkyv::access::<rkyv::Archived<UnitInterval<f32>>, rkyv::rancor::Error>(&bytes).unwrap();
+        let round_tripped =
+            rkyv::deserialize::<UnitInterval<f32>, rkyv::rancor::Error>(archived).unwrap();
+
+        assert_eq!(archived.0.to_native(), 0.25);
+        assert_eq!(round_tripped, value);
+
+        let invalid = super::ArchivedUnitInterval(rkyv::Archived::<f32>::from_native(1.25));
+
+        assert!(rkyv::deserialize::<UnitInterval<f32>, rkyv::rancor::Error>(&invalid).is_err());
     }
 }

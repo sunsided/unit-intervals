@@ -11,6 +11,11 @@ use crate::{UnitInterval, UnitIntervalError, UnitIntervalFloat};
 ///
 /// `SignedUnitInterval` is useful for normalized signed values such as direction,
 /// balance, centered offsets, joystick axes, and correlation-like coefficients.
+#[cfg_attr(
+    feature = "rkyv",
+    derive(::rkyv::Archive, ::rkyv::Serialize),
+    rkyv(crate = ::rkyv)
+)]
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
 pub struct SignedUnitInterval<T = f32>(T);
 
@@ -26,6 +31,34 @@ impl fmt::Display for SignedUnitIntervalError {
 }
 
 impl Error for SignedUnitIntervalError {}
+
+#[cfg(feature = "rkyv")]
+mod rkyv {
+    use super::*;
+    use ::rkyv::{
+        Archive, Deserialize,
+        rancor::{Fallible, Source, fail},
+    };
+
+    impl<T, D> Deserialize<SignedUnitInterval<T>, D> for ArchivedSignedUnitInterval<T>
+    where
+        T: Archive + UnitIntervalFloat,
+        T::Archived: Deserialize<T, D>,
+        D: Fallible + ?Sized,
+        D::Error: Source,
+    {
+        #[inline]
+        fn deserialize(&self, deserializer: &mut D) -> Result<SignedUnitInterval<T>, D::Error> {
+            let value = self.0.deserialize(deserializer)?;
+
+            if let Some(value) = SignedUnitInterval::new(value) {
+                Ok(value)
+            } else {
+                fail!(SignedUnitIntervalError);
+            }
+        }
+    }
+}
 
 #[cfg(feature = "serde")]
 mod serde {
@@ -1071,5 +1104,27 @@ mod tests {
         );
         assert!(serde_json::from_str::<SignedUnitInterval<f32>>("-1.25").is_err());
         assert!(serde_json::from_str::<SignedUnitInterval<f32>>("1.25").is_err());
+    }
+
+    #[cfg(feature = "rkyv")]
+    #[test]
+    fn rkyv_archives_inner_value_and_deserializes_through_checked_constructor() {
+        let value = SignedUnitInterval::<f32>::new(-0.25).unwrap();
+
+        let bytes = rkyv::to_bytes::<rkyv::rancor::Error>(&value).unwrap();
+        let archived =
+            rkyv::access::<rkyv::Archived<SignedUnitInterval<f32>>, rkyv::rancor::Error>(&bytes)
+                .unwrap();
+        let round_tripped =
+            rkyv::deserialize::<SignedUnitInterval<f32>, rkyv::rancor::Error>(archived).unwrap();
+
+        assert_eq!(archived.0.to_native(), -0.25);
+        assert_eq!(round_tripped, value);
+
+        let invalid = super::ArchivedSignedUnitInterval(rkyv::Archived::<f32>::from_native(1.25));
+
+        assert!(
+            rkyv::deserialize::<SignedUnitInterval<f32>, rkyv::rancor::Error>(&invalid).is_err()
+        );
     }
 }
