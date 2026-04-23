@@ -1,4 +1,5 @@
-use std::{
+use core::{
+    cmp::Ordering,
     error::Error,
     fmt,
     ops::{Add, Deref, Div, Mul, Neg, Rem, Sub},
@@ -605,14 +606,14 @@ macro_rules! impl_unit_interval_float {
 
         impl PartialOrd<$float> for UnitInterval<$float> {
             #[inline(always)]
-            fn partial_cmp(&self, other: &$float) -> Option<std::cmp::Ordering> {
+            fn partial_cmp(&self, other: &$float) -> Option<Ordering> {
                 self.0.partial_cmp(other)
             }
         }
 
         impl PartialOrd<UnitInterval<$float>> for $float {
             #[inline(always)]
-            fn partial_cmp(&self, other: &UnitInterval<$float>) -> Option<std::cmp::Ordering> {
+            fn partial_cmp(&self, other: &UnitInterval<$float>) -> Option<Ordering> {
                 self.partial_cmp(&other.0)
             }
         }
@@ -752,6 +753,7 @@ macro_rules! impl_unit_interval_float {
             }
         }
 
+        #[cfg(any(test, feature = "std"))]
         impl UnitInterval<$float> {
             /// Returns the largest integer less than or equal to this value.
             #[inline]
@@ -1066,6 +1068,7 @@ mod private {
 #[cfg(test)]
 mod tests {
     use super::UnitInterval;
+    use std::string::ToString;
 
     #[test]
     fn f32_constructor_accepts_unit_interval() {

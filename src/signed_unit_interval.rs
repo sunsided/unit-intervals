@@ -1,4 +1,5 @@
-use std::{
+use core::{
+    cmp::Ordering,
     error::Error,
     fmt,
     ops::{Add, Deref, Div, Mul, Neg, Rem, Sub},
@@ -289,17 +290,14 @@ macro_rules! impl_signed_unit_interval_float {
 
         impl PartialOrd<$float> for SignedUnitInterval<$float> {
             #[inline]
-            fn partial_cmp(&self, other: &$float) -> Option<std::cmp::Ordering> {
+            fn partial_cmp(&self, other: &$float) -> Option<Ordering> {
                 self.0.partial_cmp(other)
             }
         }
 
         impl PartialOrd<SignedUnitInterval<$float>> for $float {
             #[inline]
-            fn partial_cmp(
-                &self,
-                other: &SignedUnitInterval<$float>,
-            ) -> Option<std::cmp::Ordering> {
+            fn partial_cmp(&self, other: &SignedUnitInterval<$float>) -> Option<Ordering> {
                 self.partial_cmp(&other.0)
             }
         }
@@ -511,6 +509,7 @@ macro_rules! impl_signed_unit_interval_float {
             }
         }
 
+        #[cfg(any(test, feature = "std"))]
         impl SignedUnitInterval<$float> {
             /// Returns the largest integer less than or equal to this value.
             #[inline]

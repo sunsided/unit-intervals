@@ -13,6 +13,11 @@
 //! assert_eq!(clamped, UnitInterval::ONE);
 //! ```
 
+#![no_std]
+
+#[cfg(any(test, feature = "std"))]
+extern crate std;
+
 mod signed_unit_interval;
 mod unit_interval;
 
